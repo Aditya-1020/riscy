@@ -7,3 +7,10 @@ RISC-V RV32I 5-Stage Pipeline
 - Deliverables: Complete RTL, comprehensive testbench with RISC-V compliance tests, synthesis reports
 - Target: 60-100MHz simulation, measure CPI
 - Benchmark Programs: Matrix multiply, quicksort
+
+---
+btb.v
+- acts as cache of branch and map targts
+- lookup durthing IF stage and update after execution once target is known
+
+icache.v
