@@ -16,8 +16,8 @@ module regfile (
 
     reg [`XLEN-1:0] registers [0:`NUM_REGS-1];
 
-    assign rs1_data = (rs1_addr == 5'b0) ? 32'b0 : (wr_en && rd == rs1_addr) ? write_data : registers[rs1_addr];
-    assign rs2_data = (rs2_addr == 5'b0) ? 32'b0 : (wr_en && rd == rs2_addr) ? write_data : registers[rs2_addr];
+    assign rs1_data = (rs1_addr == 5'b0) ? 32'b0 : registers[rs1_addr];
+    assign rs2_data = (rs2_addr == 5'b0) ? 32'b0 : registers[rs2_addr];
     
     integer i;
     always @(posedge clk or posedge reset) begin

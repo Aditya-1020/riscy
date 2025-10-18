@@ -7,35 +7,67 @@ module data_memory (
     input wire reset,
     input wire [`XLEN-1:0] address,
     input wire [`XLEN-1:0] WriteData,
-    input wire WriteEnable,
+    input wire [3:0] WriteEnable,
+    input wire [1:0] load_type,
     input wire MemRead,
     output reg [`XLEN-1:0] ReadData
 );
 
-    reg [`XLEN-1:0] data_mem [0:`MEM_SIZE-1];
+    reg [7:0] data_mem [0:`MEM_SIZE-1];
 
-    wire [`WORD_ADDRESS-3:0] word_address;
-    assign word_address = address[`WORD_ADDRESS-1:2];
+    wire [31:0] aligned_addr = address & ~3;
+    wire [1:0] byte_offset = address[1:0];
+    
+    wire word_data = {data_mem[aligned_addr + 3],
+                      data_mem[aligned_addr + 2],
+                      data_mem[aligned_addr + 1],
+                      data_mem[aligned_addr + 0]};
+
+    // wire [`WORD_ADDRESS-3:0] word_address;
+    // assign word_address = address[`WORD_ADDRESS-1:2];
 
     integer i;
-    always @(posedge clk) begin
-        if (reset) begin
-            for (i = 0; i < (`MEM_SIZE/`WORD_BYTES); i = i + 1) begin
-                data_mem[i] <= {`XLEN{1'b0}};
-            end
-        end
-        else if (WriteEnable) begin
-            data_mem[word_address] <= WriteData;
-        end
-    end
+    always @(*) begin
+        if (!MemRead) begin
+            ReadData = 0;
+        end else begin
+            case (load_type)
+                2'b00: begin
+                    case (byte_offset)
+                        2'b00: ReadData = {{24{word_data[7]}}, word_data[7:0]};
+                        2'b01: ReadData = {{24{word_data[15]}}, word_data[15:8]};
+                        2'b10: ReadData = {{24{word_data[23]}}, word_data[23:16]};
+                        2'b11: ReadData = {{24{word_data[31]}}, word_data[31:24]};
+                    endcase
+                end
+                2'b01: begin
+                    case (byte_offset[1])
+                        1'b0: ReadData = {{16{word_data[15]}}, word_data[15:0]};
+                        1'b1: ReadData = {{16{word_data[31]}}, word_data[31:16]};
+                    endcase
+                end
 
-    always @(posedge clk) begin
-        if (MemRead) begin
-            ReadData <= data_mem[word_address];
-        end
-        else begin
-            ReadData <= {`XLEN{1'b0}};
+                2'b10: begin
+                    ReadData = word_data;
+                end
+                default: ReadData = 0;
+            endcase
         end
     end
     
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            for (i = 0; i < `MEM_SIZE; i = i + 1) begin
+                data_mem[i] <= 0;
+            end
+        end else begin
+            if (|WriteEnable) begin
+                if (WriteEnable[0]) data_mem[address] <= WriteData[7:0];
+                if (WriteEnable[1]) data_mem[address + 1] <= WriteData[15:8];
+                if (WriteEnable[2]) data_mem[address + 2] <= WriteData[23:16];
+                if (WriteEnable[3]) data_mem[address + 3] <= WriteData[31:24];
+            end
+        end
+    end
+
 endmodule
