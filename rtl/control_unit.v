@@ -5,13 +5,10 @@
 
 module control_unit (
     input [`XLEN-1:0] instruction,
-    output reg branch,
-    output reg MemRead,
-    output reg MemtoReg,
+    output reg branch, MemRead, MemToReg,
     output reg [3:0] ALU_op,
-    output reg MemWrite,
-    output reg ALUSrc,
-    output reg RegWrite
+    output reg MemWrite, ALUSrc, RegWrite,
+    output reg is_branch, is_jump, is_jal, is_jalr, is_load, is_store;
 );
 
     wire [6:0] opcode;
@@ -36,8 +33,13 @@ module control_unit (
         MemWrite = 1'b0;
         ALUSrc = 1'b0;
         RegWrite = 1'b0;
-        
-        
+        is_branch = 1'b0;
+        is_jump = 1'b0;
+        is_jal = 1'b0;
+        is_jalr = 1'b0;
+        is_load = 1'b0;
+        is_store = 1'b0;
+
         case (opcode)
             `OP_R_TYPE: begin
                 RegWrite = 1'b1;
@@ -81,20 +83,23 @@ module control_unit (
                 MemRead = 1'b1;
                 MemtoReg = 1'b1;
                 ALU_op = `ALU_ADD;
+                is_load = 1'b1;
             end
 
             `OP_S_TYPE: begin
-                RegWrite = 1'b0;  // RISC-V S-type does NOT write registers
+                RegWrite = 1'b0;
                 ALUSrc   = 1'b1;
                 MemWrite = 1'b1;
-                ALU_op   = `ALU_ADD; // Usually ADD for address calculation
+                ALU_op   = `ALU_ADD;
+                is_store = 1'b1;
             end
 
             `OP_B_TYPE: begin
                 branch   = 1'b1;
-                RegWrite = 1'b0;  // B-type does NOT write registers
+                RegWrite = 1'b0;
                 ALUSrc   = 1'b0;
                 ALU_op   = `ALU_SUB;
+                is_branch = 1'b1;
             end
 
             `OP_U_LUI: begin
@@ -109,14 +114,25 @@ module control_unit (
                 ALUSrc = 1'b1;
             end
 
-            `OP_J_JAL, `OP_J_JALR: begin
+            `OP_J_JAL: begin
                 RegWrite = 1'b1;
                 ALU_op = `ALU_ADD;
                 ALUSrc = 1'b1;
+                is_jump = 1'b1;
+                is_jal = 1'b1;
+            end
+            
+            
+            `OP_J_JALR: begin
+                RegWrite = 1'b1;
+                ALU_op = `ALU_ADD;
+                ALUSrc = 1'b1;
+                is_jump = 1'b1;
+                is_jalr = 1'b1;
             end
 
             default: begin
-                
+                // defult
             end
         endcase
     end

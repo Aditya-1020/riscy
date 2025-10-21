@@ -23,9 +23,6 @@ module data_memory (
                       data_mem[aligned_addr + 1],
                       data_mem[aligned_addr + 0]};
 
-    // wire [`WORD_ADDRESS-3:0] word_address;
-    // assign word_address = address[`WORD_ADDRESS-1:2];
-
     integer i;
     always @(*) begin
         if (!MemRead) begin

@@ -22,9 +22,6 @@ module IF_ID_reg (
             instruction_out <= `NOP_INSTRUCTION;
         end else if (!stall) begin
             pc_out <= pc_out;
-            instruction_out <= instruction_out;
-        end else begin
-            pc_out <= pc_in;
             instruction_out <= instruction_in;
         end
     end
@@ -170,19 +167,13 @@ module MEM_WB_reg (
     input wire reset,
     input wire stall,
     input wire flush,
-
     input wire [`XLEN-1:0] mem_data_in,,
     input wire [`XLEN-1:0] alu_result_in,
-
     input wire RegWrite_in, MemToReg_in,
-    
     input wire [4:0] rd_addr_in,
-
     output reg [`XLEN-1:0] mem_data_out,
     output reg [`XLEN-1:0] alu_result_out,
-    
     output reg RegWrite_out, MemToReg_out,
-
     output reg [4:0] rd_addr_out
 );
 
@@ -194,12 +185,6 @@ module MEM_WB_reg (
             MemToReg_out <= 1'b0;
             rd_addr_out <= 4'b0;
         end else if (!stall) begin
-            mem_data_out <= mem_data_out;
-            alu_result_out <= alu_result_out;
-            RegWrite_out <= RegWrite_out;
-            MemToReg_out <= MemToReg_out;
-            rd_addr_out <= rd_addr_out;
-        end else begin
             mem_data_out <= mem_data_in;
             alu_result_out <= alu_result_in;
             RegWrite_out <= RegWrite_in;

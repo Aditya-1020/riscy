@@ -31,20 +31,27 @@ module ras (
 
     assign top_stack_address = stack[stack_ptr];
     assign stack_ptr_out = stack_ptr;
-    assign valid_ras = |stack_ptr;
+    assign valid_ras = (stack_ptr != 0);
 
     integer i;
     always @(posedge clk or posedge reset) begin
         if (reset || flush) begin
-            for (i = 0; i < `RAS_SIZE; i = i + 1)
-                stack[i] <= {`XLEN{1'b0}};
+            for (i = 0;  i < `RAS_SIZE; i = i + 1)
+                stack[i] <= 0;
             stack_ptr <= 0;
         end else begin
             if (push_en && is_call) begin
-                stack_ptr <= (stack_ptr + 1) % `RAS_SIZE;
-                stack[stack_ptr] <= return_addresss;
+                if (stack_ptr < `RAS_SIZE - 1) begin
+                    stack_ptr <= stack_ptr + 1;
+                    stack[stack_ptr + 1] <= return_addresss; 
+                end else begin
+                    stack_ptr <= 0;
+                    stack[0] <= return_addresss;
+                end
             end else if (pop_en && is_return && valid_ras) begin
-                stack_ptr <= (stack_ptr - 1) % `RAS_SIZE;
+                if (stack_ptr > 0) begin
+                    stack_ptr <= stack_ptr - 1;
+                end
             end
         end
     end
