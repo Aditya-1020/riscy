@@ -6,7 +6,8 @@ module datapath (
     input wire clk,
     input wire reset,
     input wire branch_id, MemRead_id, MemToReg_id,
-    input wire [3:0] ALU_op_id, MemWrite_id, ALUSrc_id,
+    input wire [3:0] ALU_op_id,
+    input wire MemWrite_id, ALUSrc_id,
     input wire RegWrite_id, is_jal_id, is_jalr_id,
 
     output wire [`XLEN-1:0] pc_if_debug,
@@ -101,7 +102,7 @@ module datapath (
         .pc(pc_if)
     );
 
-    pc_plus4_if pc_plus4_inst (
+    pc_plus4 pc_plus4_inst (
         .pc_in(pc_if),
         .pc_plus4(pc_plus4_if)
     );
@@ -117,7 +118,7 @@ module datapath (
         .clk(clk),
         .reset(reset),
         .stall(stall),
-        .flush(flush),
+        .flush(flush_if),
         .pc_in(pc_if),
         .instruction_in(instruction_if),
         .pc_out(pc_id),
@@ -248,7 +249,7 @@ module datapath (
         .clk(clk),
         .reset(reset),
         .address(alu_result_mem),
-        .WriteData(write_enable_mem),
+        .WriteData(rs2_data_mem),
         .WriteEnable(write_enable_mem),
         .load_type(load_type_mem),
         .MemRead(MemRead_mem),
