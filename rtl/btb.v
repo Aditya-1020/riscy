@@ -13,14 +13,14 @@ module btb (
     input wire [`XLEN-1:0] target_update,
     input wire is_branch_or_jump,
 
-    output wire btb,
-    output wire [`XLEN-1:0] target_predictm,
+    output wire hit_valid,
+    output wire [`XLEN-1:0] target_predict,
     output wire [`XLEN-1:0] pc_hit
 );
 
     // BTB Entry Structure
     reg valid [`BTB_SIZE-1:0];
-    reg [`ICACHE_TAG_WIDTH-1:0] tag [`BTB_SIZE-1:0]; // upper pc
+    reg [`BTB_CACHE_WIDTH-1:0] tag [`BTB_SIZE-1:0]; // upper pc
     reg [`XLEN-1:0] target [`BTB_SIZE-1:0];
 
     // tag extract
@@ -34,7 +34,7 @@ module btb (
         if (reset) begin
             for (i = 0; i < `BTB_SIZE; i = i + 1) begin
                 valid[i] <= 1'b0;
-                tag[i] <= {`ICACHE_INDEX_WIDTH{1'b0}};
+                tag[i] <= {`BTB_CACHE_WIDTH{1'b0}};
                 target[i] <= {`XLEN{1'b0}};
             end
         end else if (update_enable && is_branch_or_jump) begin
@@ -45,8 +45,8 @@ module btb (
     end
 
     wire hit = lookup_enable && valid[lookup_index] && (tag[lookup_index] == lookup_tag);
-    assign btb = hit;
-    assign target_predictm = hit ? target[lookup_index] : (pc_if + 4);
+    assign hit_valid = hit;
+    assign target_predict = hit ? target[lookup_index] : (pc_if + 4);
     assign pc_hit = hit ? pc_if : 0;
 
 endmodule

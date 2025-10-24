@@ -24,6 +24,6 @@ module hazard_unit (
     assign control_hazard = branch_in | jump_in;
 
     assign stall = load_use_hazard;
-    assign flush = control_hazard;
+    assign flush_ex = control_hazard;
 
 endmodule

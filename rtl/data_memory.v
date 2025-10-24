@@ -18,10 +18,7 @@ module data_memory (
     wire [31:0] aligned_addr = address & ~3;
     wire [1:0] byte_offset = address[1:0];
     
-    wire word_data = {data_mem[aligned_addr + 3],
-                      data_mem[aligned_addr + 2],
-                      data_mem[aligned_addr + 1],
-                      data_mem[aligned_addr + 0]};
+    wire [31:0] word_data = {data_mem[aligned_addr + 3], data_mem[aligned_addr + 2], data_mem[aligned_addr + 1], data_mem[aligned_addr + 0]};
 
     integer i;
     always @(*) begin
@@ -29,7 +26,7 @@ module data_memory (
             ReadData = 0;
         end else begin
             case (load_type)
-                2'b00: begin
+                2'b00: begin // LB/LBU
                     case (byte_offset)
                         2'b00: ReadData = {{24{word_data[7]}}, word_data[7:0]};
                         2'b01: ReadData = {{24{word_data[15]}}, word_data[15:8]};
@@ -37,14 +34,14 @@ module data_memory (
                         2'b11: ReadData = {{24{word_data[31]}}, word_data[31:24]};
                     endcase
                 end
-                2'b01: begin
+                2'b01: begin // LH/LHU
                     case (byte_offset[1])
                         1'b0: ReadData = {{16{word_data[15]}}, word_data[15:0]};
                         1'b1: ReadData = {{16{word_data[31]}}, word_data[31:16]};
                     endcase
                 end
 
-                2'b10: begin
+                2'b10: begin // LW
                     ReadData = word_data;
                 end
                 default: ReadData = 0;

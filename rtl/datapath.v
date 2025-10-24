@@ -27,7 +27,7 @@ module datapath (
     wire [2:0] funct3_ex;
     wire [6:0] opcode_ex;
     wire instr_30_ex;
-    wire RegWrite_ex, MemToReg_ex, MemWrite_ex MemRead_ex;
+    wire RegWrite_ex, MemToReg_ex, MemWrite_ex, MemRead_ex;
     wire ALUSrc_ex, branch_ex;
     wire [3:0] ALU_op_ex;
     wire is_jal_ex, is_jalr_ex;
@@ -56,10 +56,10 @@ module datapath (
     wire control_hazard;
 
     assign opcode_id = instruction_id[6:0];
-    assign rs1_id = instruction[19:15];
-    assign rs2_id = instruction[24:20];
-    assign rd_id = instruciton_id[11:7];
-    assign funct3_id = instruciton_id[14:12];
+    assign rs1_id = instruction_id[19:15];
+    assign rs2_id = instruction_id[24:20];
+    assign rd_id = instruction_id[11:7];
+    assign funct3_id = instruction_id[14:12];
     assign instr_30_id = instruction_id[30];
 
     assign control_hazard = branch_taken_ex | is_jal_ex | is_jalr_ex;
@@ -68,12 +68,12 @@ module datapath (
     assign flush_ex = 1'b0;
 
     hazard_unit hazard_unit_inst (
-        .rs1_id_in(rs1_addr_ex),
-        .rs2_id_in(rs2_addr_ex),
+        .rs1_id_in(rs1_id),
+        .rs2_id_in(rs2_id),
         .rd_ex_in(rd_ex),
         .MemRead_in(MemRead_ex),
         .branch_in(branch_ex),
-        .jump_in(is_jal_ex | is is_jalr_ex),
+        .jump_in(is_jal_ex | is_jalr_ex),
         .stall(stall),
         .flush_ex(flush_ex)
     );

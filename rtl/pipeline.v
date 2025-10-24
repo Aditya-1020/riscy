@@ -21,7 +21,7 @@ module IF_ID_reg (
             pc_out <= `RESET_PC;
             instruction_out <= `NOP_INSTRUCTION;
         end else if (!stall) begin
-            pc_out <= pc_out;
+            pc_out <= pc_in;
             instruction_out <= instruction_in;
         end
     end
@@ -120,19 +120,20 @@ module EX_MEM_reg (
     
     input wire [`XLEN-1:0] alu_result_in,
     input wire [`XLEN-1:0] rs2_data_in,
-    
-    input wire RegWrite_in, MemToReg_in, MemRead_in, 
+    input wire RegWrite_in, MemToReg_in, MemRead_in, MemWrite_in,
     input wire branch_in,
-    
     input wire [4:0] rd_addr_in,
-    
+    input wire [2:0] funct3_in,
     input wire [`XLEN-1:0] branch_target_in,
     input wire branch_taken_in,
-
+    
+    output reg [`XLEN-1:0] alu_result_out, rs2_data_out,
+    output reg [2:0] funct3_out,
     output reg RegWrite_out, MemToReg_out, MemWrite_out, MemRead_out,
     output reg branch_out,
     
     output reg [4:0] rd_addr_out,
+    output reg [2:0] funct3_out,
     
     output reg [`XLEN-1:0] branch_target_out,
     output reg branch_taken_out
@@ -140,21 +141,27 @@ module EX_MEM_reg (
 
     always @(posedge clk or posedge reset) begin
         if (reset || flush) begin
+            alu_result_out <= 32'b0;
+            rs2_data_out <= 32'b0;
             RegWrite_out <= 1'b0;
             MemToReg_out <= 1'b0;
             MemWrite_out <= 1'b0;
             MemRead_out <= 1'b0;
             branch_out <= 1'b0;
-            rd_addr_out <= 4'b0;
+            rd_addr_out <= 5'b0;
+            funct3_out <= 3'b0;
             branch_target_out <= 32'b0;
             branch_taken_out <= 1'b0; 
         end else if (!stall) begin
+            alu_result_out <= alu_result_in;
+            rs2_data_out <= rs2_data_in;
             RegWrite_out <= RegWrite_in;
             MemToReg_out <= MemToReg_in;
             MemWrite_out <= MemWrite_in;
             MemRead_out <= MemRead_in;
             branch_out <= branch_in;
             rd_addr_out <= rd_addr_in;
+            funct3_out <= funct3_in;
             branch_target_out <= branch_target_in;
             branch_taken_out <= branch_taken_in;
         end
@@ -167,7 +174,7 @@ module MEM_WB_reg (
     input wire reset,
     input wire stall,
     input wire flush,
-    input wire [`XLEN-1:0] mem_data_in,,
+    input wire [`XLEN-1:0] mem_data_in,
     input wire [`XLEN-1:0] alu_result_in,
     input wire RegWrite_in, MemToReg_in,
     input wire [4:0] rd_addr_in,
@@ -183,7 +190,7 @@ module MEM_WB_reg (
             alu_result_out <= 32'b0;
             RegWrite_out <= 1'b0;
             MemToReg_out <= 1'b0;
-            rd_addr_out <= 4'b0;
+            rd_addr_out <= 5'b0;
         end else if (!stall) begin
             mem_data_out <= mem_data_in;
             alu_result_out <= alu_result_in;

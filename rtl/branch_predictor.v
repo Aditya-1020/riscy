@@ -13,8 +13,8 @@ module branch_predictor (
     input wire branch_taken,
     input wire is_branch,
 
-    output wire prediction,
-    output wire [1:0] predict_strength
+    output reg prediction,
+    output reg [1:0] predict_strength
 );
 
     reg [1:0] predict_table [0:`BTB_SIZE-1]; // 2 bit counters
@@ -39,14 +39,7 @@ module branch_predictor (
         end
     end
 
-    always @(*) begin
-        if (predict_enable) begin
-            predict_strength = predict_table[predict_index];
-            prediction = predict_strength[1];
-        end else begin
-            prediction = 1'b0;
-            predict_strength = 2'b00;
-        end
-    end
+    assign predict_strength = predict_enable ? predict_table[predict_index] : 2'b00;
+    assign prediction = predict_enable ? predict_strength[1] : 1'b0;
 
 endmodule

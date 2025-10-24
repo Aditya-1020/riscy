@@ -8,7 +8,7 @@ module control_unit (
     output reg branch, MemRead, MemToReg,
     output reg [3:0] ALU_op,
     output reg MemWrite, ALUSrc, RegWrite,
-    output reg is_branch, is_jump, is_jal, is_jalr, is_load, is_store;
+    output reg is_branch, is_jump, is_jal, is_jalr, is_load, is_store
 );
 
     wire [6:0] opcode;
@@ -28,7 +28,7 @@ module control_unit (
     always @(*) begin
         branch = 1'b0;
         MemRead = 1'b0;
-        MemtoReg = 1'b0;
+        MemToReg = 1'b0;
         ALU_op = `ALU_ADD;
         MemWrite = 1'b0;
         ALUSrc = 1'b0;
@@ -44,7 +44,7 @@ module control_unit (
             `OP_R_TYPE: begin
                 RegWrite = 1'b1;
                 ALUSrc   = 1'b0;
-                MemtoReg = 1'b0;
+                MemToReg = 1'b0;
 
                 case (funct3)
                     `FUNCT3_ADD_SUB: ALU_op = decoded_funct7;
@@ -62,7 +62,7 @@ module control_unit (
             `OP_IMM: begin
                 RegWrite = 1'b1;
                 ALUSrc = 1'b1;
-                MemtoReg = 1'b0;
+                MemToReg = 1'b0;
 
                 case (funct3)
                     `FUNCT3_ADD_SUB: ALU_op = `ALU_ADD;
@@ -81,7 +81,7 @@ module control_unit (
                 RegWrite = 1'b1;
                 ALUSrc = 1'b1;
                 MemRead = 1'b1;
-                MemtoReg = 1'b1;
+                MemToReg = 1'b1;
                 ALU_op = `ALU_ADD;
                 is_load = 1'b1;
             end
@@ -132,7 +132,7 @@ module control_unit (
             end
 
             default: begin
-                // defult
+                // no change
             end
         endcase
     end

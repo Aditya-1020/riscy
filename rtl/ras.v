@@ -14,7 +14,6 @@ module ras (
     // pop if jlar
     input wire pop_en,
     input wire [4:0] rs1,
-    input wire flush,
     
     output wire [`XLEN-1:0] top_stack_address,
     output wire valid_ras,

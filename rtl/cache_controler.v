@@ -12,7 +12,7 @@ module cache_controler (
     output reg [`XLEN-1:0] refill_data,
     output reg refill_done,
     output reg mem_req,
-    output reg [`XLEN-1:0] mem_addr,
+    output reg [`XLEN-1:0] mem_addr
 );
 
     localparam IDLE= 2'b00;

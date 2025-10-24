@@ -1,4 +1,3 @@
-`timescale 1ps/1ps
 `ifndef ISA_DEFS
 `define ISA_DEFS
 
@@ -181,6 +180,7 @@
 `define BTB_INDEX_WIDTH 4
 `define RAS_SIZE 8
 `define RAS_PTR_WIDTH 3
+`define BTB_CACHE_WIDTH (32 - `BTB_INDEX_WIDTH - 2)
 
 // Branch predictor states (2-bit saturating counter)
 `define PRED_STRONG_NOT_TAKEN 2'b00

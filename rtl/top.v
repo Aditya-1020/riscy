@@ -18,14 +18,14 @@ module top (
     assign instruciton_id = instruction_id_debug;
 
     control_unit control_unit_inst (
-        .instruction(instruction),
+        .instruction(instruciton_id),
         .branch(branch),
         .MemRead(MemRead),
         .MemtoReg(MemtoReg),
         .ALU_op(ALU_op),
         .MemWrite(MemWrite),
         .ALUSrc(ALUSrc),
-        .RegWrite(RegWrite)
+        .RegWrite(RegWrite),
         .is_branch(is_branch),
         .is_jump(is_jump),
         .is_jal(is_jal),
@@ -52,10 +52,10 @@ module top (
         .instruction_id_debug(instruction_id_debug)
     );
 
-    perforamnce_counters perforamnce_counters_inst (
+    performance_counters performance_counters_inst (
         .clk(clk),
         .reset(reset),
-        .instruction_valid(instruciton_id_debug != `NOP_INSTRUCTION),
+        .instruction_valid(instruction_id_debug != `NOP_INSTRUCTION),
         .is_branch(is_branch),
         .branch_taken(1'b0),
         .branch_predict(1'b0),
@@ -69,7 +69,7 @@ module top (
 
 endmodule
 
-module perforamnce_counters (
+module performance_counters (
     input wire clk,
     input wire reset,
     input wire instruction_valid,
