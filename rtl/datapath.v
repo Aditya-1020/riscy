@@ -9,52 +9,61 @@ module datapath (
     input wire [3:0] ALU_op_id,
     input wire MemWrite_id, ALUSrc_id,
     input wire RegWrite_id, is_jal_id, is_jalr_id,
+    input wire is_branch_id, is_jump_id,
 
     output wire [`XLEN-1:0] pc_if_debug,
     output wire [`XLEN-1:0] instruction_if_debug,
-    output wire [`XLEN-1:0] pc_id_debug, instruction_id_debug
+    output wire [`XLEN-1:0] pc_id_debug, instruction_id_debug,
+    output wire branch_mispredict,
+    output wire icache_stall
 );
 
+    // if
     wire [`XLEN-1:0] pc_if, pc_next_if, pc_plus4_if, instruction_if;
-    wire [`XLEN-1:0] pc_id, instruction_id;
+    wire btb_hit, prediction_if, ras_valid;
+    wire [`XLEN-1:0] btb_target_if, predicted_pc_if, ras_top_addr;
+    wire [1:0] predict_strength_if;
+    wire [`RAS_PTR_WIDTH-1:0] ras_ptr;
+    wire [`XLEN-1:0] pc_hit_btb;
+
+    wire icache_hit, icache_miss, icache_ready, icache_mem_req, mem_ack_to_cache;
+    wire [`XLEN-1:0] icache_mem_addr, mem_data_to_cache;
+
+    // id
+    wire [`XLEN-1:0] pc_id, instruction_id, rs1_data_id, rs2_data_id, immediate_id, predicted_target_id;
     wire [4:0] rs1_id, rs2_id, rd_id;
     wire [2:0] funct3_id;
     wire [6:0] opcode_id;
-    wire instr_30_id;
-    wire [`XLEN-1:0] rs1_data_id, rs2_data_id, immediate_id;
+    wire instr_30_id, prediction_id;
 
-    wire [`XLEN-1:0] pc_ex, rs1_data_ex, rs2_data_ex, immediate_ex;
+    //ex
+    wire [`XLEN-1:0] pc_ex, rs1_data_ex, rs2_data_ex, immediate_ex, predicted_target_ex;
     wire [4:0] rs1_addr_ex, rs2_addr_ex, rd_ex;
     wire [2:0] funct3_ex;
     wire [6:0] opcode_ex;
-    wire instr_30_ex;
-    wire RegWrite_ex, MemToReg_ex, MemWrite_ex, MemRead_ex;
-    wire ALUSrc_ex, branch_ex;
+    wire instr_30_ex, RegWrite_ex, MemToReg_ex, MemWrite_ex, MemRead_ex, ALUSrc_ex, branch_ex, prediction_ex;
+    wire is_jal_ex, is_jalr_ex, is_branch_ex;
     wire [3:0] ALU_op_ex;
-    wire is_jal_ex, is_jalr_ex;
 
-    wire [`XLEN-1:0] alu_in_a, alu_in_b, alu_result_ex;
-    wire alu_zero_ex;
-    wire [`XLEN-1:0] forwarded_rs1_ex, forwarded_rs2_ex;
+    wire [`XLEN-1:0] alu_in_a, alu_in_b, alu_result_ex, forwarded_rs1_ex, forwarded_rs2_ex, branch_target_ex, actual_next_pc_ex;
+    wire alu_zero_ex, branch_taken_ex;
     wire [1:0] forward_a, forward_b;
-    wire branch_taken_ex;
-    wire [`XLEN-1:0] branch_target_ex;
-    wire [`XLEN-1:0] alu_result_mem, rs2_data_mem;
+
+    // mem
+    wire [`XLEN-1:0] alu_result_mem, rs2_data_mem, mem_read_data;
     wire [4:0] rd_mem;
-    wire RegWrite_mem, MemToReg_mem, MemWrite_mem, MemRead_mem;
-    wire branch_mem;
-    wire [`XLEN-1:0] branch_target_mem;
-    wire branch_taken_mem;
     wire [2:0] funct3_mem;
-    wire [`XLEN-1:0] mem_read_data;
+    wire RegWrite_mem, MemToReg_mem, MemWrite_mem, MemRead_mem;
     wire [3:0] write_enable_mem;
     wire [1:0] load_type_mem;
-    wire [`XLEN-1:0] mem_data_wb, alu_result_wb;
+
+    // wb
+    wire [`XLEN-1:0] mem_data_wb, alu_result_wb, write_back_data;
     wire [4:0] rd_wb;
     wire RegWrite_wb, MemToReg_wb;
-    wire [`XLEN-1:0] write_back_data;
-    wire stall, flush_if, flush_id, flush_ex;
-    wire control_hazard;
+
+    //hazrd
+    wire stall, flush_if, flush_id, flush_ex, control_hazard, load_use_stall;
 
     assign opcode_id = instruction_id[6:0];
     assign rs1_id = instruction_id[19:15];
@@ -63,37 +72,23 @@ module datapath (
     assign funct3_id = instruction_id[14:12];
     assign instr_30_id = instruction_id[30];
 
-    assign control_hazard = branch_taken_ex | is_jal_ex | is_jalr_ex;
+    assign branch_mispredict = (branch_ex && (branch_taken_ex != prediction_ex)) || (is_jal_ex || is_jalr_ex);
+    
+    assign actual_next_pc_ex = is_jalr_ex ? ((forwarded_rs1_ex + immediate_ex) & ~32'h1) : (branch_taken_ex || is_jal_ex) ? branch_target_ex : (pc_ex + 4);
+
+    assign control_hazard = branch_mispredict;
     assign flush_if = control_hazard;
     assign flush_id = control_hazard;
     assign flush_ex = 1'b0;
 
-    hazard_unit hazard_unit_inst (
-        .rs1_id_in(rs1_id),
-        .rs2_id_in(rs2_id),
-        .rd_ex_in(rd_ex),
-        .MemRead_in(MemRead_ex),
-        .branch_in(branch_ex),
-        .jump_in(is_jal_ex | is_jalr_ex),
-        .stall(stall),
-        .flush_ex(flush_ex)
-    );
+    assign icache_stall == !icache_ready && !reset;
+    assign stall = load_use_stall || icache_stall;
 
-    forwarding_unit forwarding_unit_inst (
-        .rs1_ex(rs1_addr_ex),
-        .rs2_ex(rs2_addr_ex),
-        .rd_mem(rd_mem),
-        .rd_wb(rd_wb),
-        .RegWrite_mem(RegWrite_mem),
-        .RegWrite_wb(RegWrite_wb),
-        .forward_a(forward_a),
-        .forward_b(forward_b)
-    );
+    wire use_ras_prediction = (opcode_id == `OP_J_JALR) && (rs1_id == 5'd1 || rs1_id == 5'd5) && ras_valid;
+    assign predicted_pc_if = use_ras_prediction ? ras_top_addr : (btb_hit && prediction_if) ? btb_target_if : pc_plus4_if;
+    assign pc_next_if = control_hazard ? actual_next_pc_ex : predicted_pc_if;
 
-    wire [`XLEN-1:0] jalr_target_ex = (forwarded_rs1_ex + immediate_ex) & ~32'h1;
-    assign branch_target_ex = pc_ex + immediate_ex;
-
-    assign pc_next_if = control_hazard ? (is_jalr_ex ? jalr_target_ex : branch_target_ex) : pc_plus4_if;
+    reg [`XLEN-1:0] pc_hit_btb;
 
     pc pc_inst (
         .clk(clk),
@@ -101,18 +96,71 @@ module datapath (
         .pc_next(stall ? pc_if : pc_next_if),
         .pc(pc_if)
     );
-
+    
     pc_plus4 pc_plus4_inst (
         .pc_in(pc_if),
         .pc_plus4(pc_plus4_if)
     );
 
-    instruction_mem instruction_mem_inst (
+    btb btb_inst (
         .clk(clk),
         .reset(reset),
-        .address(pc_if[11:2]),
+        .pc_if(pc_if),
+        .lookup_enable(!stall),
+        .update_enable(branch_ex || is_jal_ex || is_jalr_ex),
+        .pc_update(pc_ex),
+        .target_update(actual_next_pc_ex),
+        .is_branch_or_jump(branch_ex || is_jal_ex || is_jalr_ex),
+        .hit_valid(btb_hit),
+        .target_predict(btb_target_if),
+        .pc_hit(pc_hit_btb)
+    );
+
+    branch_predictor bp_inst (
+        .clk(clk),
+        .reset(reset),
+        .pc_if(pc_if),
+        .predict_enable(!stall),
+        .update_enable(branch_ex),
+        .pc_update(pc_ex),
+        .branch_taken(branch_taken_ex),
+        .is_branch(is_branch_ex),
+        .prediction(prediction_if),
+        .predict_strength(predict_strength_if)
+    );
+
+     ras ras_inst (
+        .clk(clk),
+        .reset(reset),
+        .flush(control_hazard),
+        .push_en(is_jal_ex || is_jalr_ex),
+        .return_addresss(pc_ex + 4),
+        .opcode(opcode_ex),
+        .rd(rd_ex),
+        .pop_en(is_jalr_ex),
+        .rs1(rs1_addr_ex),
+        .top_stack_address(ras_top_addr),
+        .valid_ras(ras_valid),
+        .stack_ptr_out(ras_ptr)
+    );
+
+    icache icache_inst (
+        .clk(clk),
+        .reset(reset),
+        .pc(pc_if),
+        .fetch_en(!stall),
+        .mem_ready(mem_ack_to_cache),
+        .mem_data(mem_data_to_cache),
+        .hit(icache_hit),
+        .miss(icache_miss),
+        .ready(icache_ready),
+        .mem_read(icache_mem_req),
+        .mem_addr(icache_mem_addr),
         .instruction(instruction_if)
     );
+
+    assign mem_ack_to_cache = icache_mem_req;
+    assign mem_data_to_cache = `NOP_INSTRUCTION;
 
     IF_ID_reg if_id_reg_inst (
         .clk(clk),
@@ -121,11 +169,15 @@ module datapath (
         .flush(flush_if),
         .pc_in(pc_if),
         .instruction_in(instruction_if),
+        .prediction_in(prediction_if),
+        .predicted_target_in(predicted_pc_if),
         .pc_out(pc_id),
-        .instruction_out(instruction_id)
+        .instruction_out(instruction_id),
+        .prediction_out(prediction_id),
+        .predicted_target_out(predicted_target_id)
     );
 
-    regfile register_inst (
+    reegfile register_inst (
         .clk(clk),
         .reset(reset),
         .rs1_addr(rs1_id),
@@ -142,7 +194,18 @@ module datapath (
         .immediate(immediate_id)
     );
 
-    ID_EX_reg ID_EX_reg_inst (
+    hazard_unit hazard_unit_inst (
+        .rs1_id_in(rs1_id),
+        .rs2_id_in(rs2_id),
+        .rd_ex_in(rd_ex),
+        .MemRead_in(MemRead_ex),
+        .branch_in(branch_ex),
+        .jump_in(is_jal_ex | is_jalr_ex),
+        .stall(load_use_stall),
+        .flush_ex(flush_ex)
+    );
+
+ID_EX_reg id_ex_reg_inst (
         .clk(clk),
         .reset(reset),
         .flush(flush_id),
@@ -156,6 +219,7 @@ module datapath (
         .ALU_op_in(ALU_op_id),
         .is_jal_in(is_jal_id),
         .is_jalr_in(is_jalr_id),
+        .is_branch_in(is_branch_id),
         .pc_in(pc_id),
         .rs1_data_in(rs1_data_id),
         .rs2_data_in(rs2_data_id),
@@ -166,6 +230,8 @@ module datapath (
         .funct3_in(funct3_id),
         .opcode_in(opcode_id),
         .instr_30_in(instr_30_id),
+        .prediction_in(prediction_id),
+        .predicted_target_in(predicted_target_id),
         .RegWrite_out(RegWrite_ex),
         .MemToReg_out(MemToReg_ex),
         .MemWrite_out(MemWrite_ex),
@@ -175,6 +241,7 @@ module datapath (
         .ALU_op_out(ALU_op_ex),
         .is_jal_out(is_jal_ex),
         .is_jalr_out(is_jalr_ex),
+        .is_branch_out(is_branch_ex),
         .pc_out(pc_ex),
         .rs1_data_out(rs1_data_ex),
         .rs2_data_out(rs2_data_ex),
@@ -184,14 +251,28 @@ module datapath (
         .rd_addr_out(rd_ex),
         .funct3_out(funct3_ex),
         .opcode_out(opcode_ex),
-        .instr_30_out(instr_30_ex)
+        .instr_30_out(instr_30_ex),
+        .prediction_out(prediction_ex),
+        .predicted_target_out(predicted_target_ex)
     );
     
+    forwarding_unit forwarding_unit_inst (
+        .rs1_ex(rs1_addr_ex),
+        .rs2_ex(rs2_addr_ex),
+        .rd_mem(rd_mem),
+        .rd_wb(rd_wb),
+        .RegWrite_mem(RegWrite_mem),
+        .RegWrite_wb(RegWrite_wb),
+        .forward_a(forward_a),
+        .forward_b(forward_b)
+    );
+
     assign forwarded_rs1_ex = (forward_a == 2'b10) ? alu_result_mem : (forward_a == 2'b01) ? write_back_data : rs1_data_ex;
     assign forwarded_rs2_ex = (forward_b == 2'b10) ? alu_result_mem : (forward_b == 2'b01) ? write_back_data : rs2_data_ex;
 
     assign alu_in_a = forwarded_rs1_ex;
     assign alu_in_b = ALUSrc_ex ? immediate_ex : forwarded_rs2_ex;
+
 
     alu alu_inst (
         .a(alu_in_a),
@@ -210,8 +291,10 @@ module datapath (
         .branch_enable(branch_ex),
         .branch_taken(branch_taken_ex)
     );
+    
+    assign branch_target_ex = pc_ex + immediate_ex;
 
-    EX_MEM_reg EX_MEM_reg_inst (
+    EX_MEM_reg ex_mem_reg_inst (
         .clk(clk),
         .reset(reset),
         .stall(1'b0),
@@ -233,15 +316,14 @@ module datapath (
         .MemToReg_out(MemToReg_mem),
         .MemWrite_out(MemWrite_mem),
         .MemRead_out(MemRead_mem),
-        .branch_out(branch_mem),
+        .branch_out(),
         .rd_addr_out(rd_mem),
         .funct3_out(funct3_mem),
-        .branch_target_out(branch_target_mem),
-        .branch_taken_out(branch_taken_mem)
+        .branch_target_out(),
+        .branch_taken_out()
     );
 
-    wire funct3S_check = (funct3_mem == `FUNCT3_SB ? 4'b0001 : funct3_mem == `FUNCT3_SH ? 4'b0011 : funct3_mem == `FUNCT3_SW ? 4'b1111 : 4'b0000);
-    assign write_enable_mem = MemWrite_mem ? funct3S_check : 4'b0000;
+    assign write_enable_mem = MemWrite_mem ? (funct3_mem == `FUNCT3_SB ? 4'b0001 : funct3_mem == `FUNCT3_SH ? 4'b0011 : funct3_mem == `FUNCT3_SW ? 4'b1111 : 4'b0000) : 4'b0000;
     
     assign load_type_mem = (funct3_mem == `FUNCT3_LB || funct3_mem == `FUNCT3_LBU) ? 2'b00 : (funct3_mem == `FUNCT3_LH || funct3_mem == `FUNCT3_LHU) ? 2'b01 : 2'b10;
 
@@ -256,7 +338,7 @@ module datapath (
         .ReadData(mem_read_data)
     );
 
-    MEM_WB_reg MEM_WB_reg_inst (
+    MEM_WB_reg mem_wb_reg_inst (
         .clk(clk),
         .reset(reset),
         .stall(1'b0),
@@ -279,5 +361,5 @@ module datapath (
     assign instruction_if_debug = instruction_if;
     assign pc_id_debug = pc_id;
     assign instruction_id_debug = instruction_id;
-    
+
 endmodule

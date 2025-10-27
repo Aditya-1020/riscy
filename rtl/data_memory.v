@@ -7,7 +7,7 @@ module data_memory (
     input wire reset,
     input wire [`XLEN-1:0] address,
     input wire [`XLEN-1:0] WriteData,
-    input wire [3:0] WriteEnable,
+    input wire [3:0] wr_en,
     input wire [1:0] load_type,
     input wire MemRead,
     output reg [`XLEN-1:0] ReadData
