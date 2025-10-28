@@ -1,0 +1,74 @@
+00000093  // addi x1, x0, 0      # x1 = 0
+00500113  // addi x2, x0, 5      # x2 = 5
+00a00193  // addi x3, x0, 10     # x3 = 10
+002081b3  // add  x3, x1, x2     # x3 = x1 + x2 = 5
+40208233  // sub  x4, x1, x2     # x4 = x1 - x2 = -5
+002122b3  // slt  x5, x2, x2     # x5 = (5 < 5) = 0
+00213333  // sltu x6, x2, x2     # x6 = (5 < 5) unsigned = 0
+
+0020c3b3  // xor  x7, x1, x2     # x7 = x1 ^ x2
+0020e433  // or   x8, x1, x2     # x8 = x1 | x2
+0020f4b3  // and  x9, x1, x2     # x9 = x1 & x2
+
+00209533  // sll  x10, x1, x2    # x10 = x1 << x2
+0020d5b3  // srl  x11, x1, x2    # x11 = x1 >> x2 (logical)
+4020d633  // sra  x12, x1, x2    # x12 = x1 >> x2 (arithmetic)
+
+00a08693  // addi x13, x1, 10    # x13 = x1 + 10
+fff08713  // addi x14, x1, -1    # x14 = x1 - 1
+00a0e793  // ori  x15, x1, 10    # x15 = x1 | 10
+00a0f813  // andi x16, x1, 10    # x16 = x1 & 10
+
+123458b7  // lui  x17, 0x12345   # x17 = 0x12
+00000917  // auipc x18, 0        # x18 = PC + 0
+
+10000993  // addi x19, x0, 0x100 # x19 = 0x100 (data address)
+00a00a13  // addi x20, x0, 10    # x20 = 10
+01498023  // sb   x20, 0(x19)    # mem[0x100] = 10 (byte)
+01499023  // sh   x20, 0(x19)    # mem[0x100] = 10 (halfword)
+0149a023  // sw   x20, 0(x19)    # mem[0x100] = 10 (word)
+00098a83  // lb   x21, 0(x19)    # x21 = mem[0x100] (byte)
+00099b03  // lh   x22, 0(x19)    # x22 = mem[0x100] (halfword)
+0009ab83  // lw   x23, 0(x19)    # x23 = mem[0x100] (word)
+
+00000c13  // addi x24, x0, 0     # x24 = 0
+005c0c93  // addi x25, x24, 5    # x25 = 5
+019c0463  // beq  x24, x25, 8    # if x24==x25, skip 2 instr
+001c0c13  // addi x24, x24, 1    # x24 = 1 (executed)
+001c0c13  // addi x24, x24, 1    # x24 = 2 (executed)
+019c1463  // bne  x24, x25, 8    # if x24!=x25, skip 2 instr
+001c0c13  // addi x24, x24, 1    # x24 = 3 (executed)
+001c0c13  // addi x24, x24, 1    # x24 = 4 (executed)
+
+00000d13  // addi x26, x0, 0     # x26 = 0
+00500d93  // addi x27, x0, 5     # x27 = 5
+01bd4463  // blt  x26, x27, 8    # if x26<x27, skip 2 instr
+001d0d13  // addi x26, x26, 1    # (skipped)
+001d0d13  // addi x26, x26, 1    # (skipped)
+01bd5463  // bge  x26, x27, 8    # if x26>=x27, skip 2 instr
+001d0d13  // addi x26, x26, 1    # x26 = 1 (executed)
+001d0d13  // addi x26, x26, 1    # x26 = 2 (executed)
+
+00c000ef  // jal  x1, 12         # jump forward 12 bytes, x1 = return addr
+00000e13  // addi x28, x0, 0     # (skipped)
+00000e13  // addi x28, x0, 0     # (skipped)
+00000e13  // addi x28, x0, 0     # (skipped)
+00100e13  // addi x28, x0, 1     # x28 = 1 (executed after jump)
+
+00000e93  // addi x29, x0, 0     # x29 = 0
+00008f13  // addi x30, x1, 0     # x30 = x1 (save return addr)
+000e8067  // jalr x0, x29, 0     # jump to x29 (not executed - would loop)
+
+00000f13  // addi x30, x0, 0     # x30 = 0 (counter)
+00500f93  // addi x31, x0, 5     # x31 = 5 (limit)
+001f0f13  // addi x30, x30, 1    # x30++
+ffff1ce3  // bne  x30, x31, -8   # loop if x30 != x31
+
+20000fb7  // lui  x31, 0x20000   # x31 = 0x20000000
+00af8023  // sb   x10, 0(x31)    # store byte
+001f8f83  // lb   x31, 1(x31)    # load byte (test forwarding)
+
+fff00013  // addi x0, x0, -1     # nop (x0 always 0)
+00100093  // addi x1, x0, 1      # x1 = 1
+fff00113  // addi x2, x0, -1     # x2 = -1 (0xFFFFFFFF unsigned)
+0020b1b3  // sltu x3, x1, x2     # x3 = (1 < 0xFFFFFFFF) = 1

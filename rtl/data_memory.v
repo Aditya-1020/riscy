@@ -15,7 +15,7 @@ module data_memory (
 
     reg [7:0] data_mem [0:`MEM_SIZE-1];
 
-    wire [31:0] aligned_addr = address & ~3;
+    wire [31:0] aligned_addr = address & ~32'h3;
     wire [1:0] byte_offset = address[1:0];
     
     wire [31:0] word_data = {data_mem[aligned_addr + 3], data_mem[aligned_addr + 2], data_mem[aligned_addr + 1], data_mem[aligned_addr + 0]};
@@ -23,7 +23,7 @@ module data_memory (
     integer i;
     always @(*) begin
         if (!MemRead) begin
-            ReadData = 0;
+            ReadData = 32'h0;
         end else begin
             case (load_type)
                 2'b00: begin // LB/LBU
@@ -44,7 +44,7 @@ module data_memory (
                 2'b10: begin // LW
                     ReadData = word_data;
                 end
-                default: ReadData = 0;
+                default: ReadData = 32'h0;
             endcase
         end
     end
@@ -55,11 +55,11 @@ module data_memory (
                 data_mem[i] <= 0;
             end
         end else begin
-            if (|WriteEnable) begin
-                if (WriteEnable[0]) data_mem[address] <= WriteData[7:0];
-                if (WriteEnable[1]) data_mem[address + 1] <= WriteData[15:8];
-                if (WriteEnable[2]) data_mem[address + 2] <= WriteData[23:16];
-                if (WriteEnable[3]) data_mem[address + 3] <= WriteData[31:24];
+            if (|wr_en) begin
+                if (wr_en[0]) data_mem[address] <= WriteData[7:0];
+                if (wr_en[1]) data_mem[address + 1] <= WriteData[15:8];
+                if (wr_en[2]) data_mem[address + 2] <= WriteData[23:16];
+                if (wr_en[3]) data_mem[address + 3] <= WriteData[31:24];
             end
         end
     end

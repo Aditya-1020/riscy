@@ -24,7 +24,7 @@ module datapath (
     wire [`XLEN-1:0] btb_target_if, predicted_pc_if, ras_top_addr;
     wire [1:0] predict_strength_if;
     wire [`RAS_PTR_WIDTH-1:0] ras_ptr;
-    wire [`XLEN-1:0] pc_hit_btb;
+    reg [`XLEN-1:0] pc_hit_btb;
 
     wire icache_hit, icache_miss, icache_ready, icache_mem_req, mem_ack_to_cache;
     wire [`XLEN-1:0] icache_mem_addr, mem_data_to_cache;
@@ -81,14 +81,14 @@ module datapath (
     assign flush_id = control_hazard;
     assign flush_ex = 1'b0;
 
-    assign icache_stall == !icache_ready && !reset;
+    assign icache_stall = !icache_ready && !reset;
     assign stall = load_use_stall || icache_stall;
 
     wire use_ras_prediction = (opcode_id == `OP_J_JALR) && (rs1_id == 5'd1 || rs1_id == 5'd5) && ras_valid;
     assign predicted_pc_if = use_ras_prediction ? ras_top_addr : (btb_hit && prediction_if) ? btb_target_if : pc_plus4_if;
     assign pc_next_if = control_hazard ? actual_next_pc_ex : predicted_pc_if;
 
-    reg [`XLEN-1:0] pc_hit_btb;
+    // reg [`XLEN-1:0] pc_hit_btb;
 
     pc pc_inst (
         .clk(clk),
@@ -177,7 +177,7 @@ module datapath (
         .predicted_target_out(predicted_target_id)
     );
 
-    reegfile register_inst (
+    regfile register_inst (
         .clk(clk),
         .reset(reset),
         .rs1_addr(rs1_id),
@@ -332,7 +332,7 @@ ID_EX_reg id_ex_reg_inst (
         .reset(reset),
         .address(alu_result_mem),
         .WriteData(rs2_data_mem),
-        .WriteEnable(write_enable_mem),
+        .wr_en(write_enable_mem),
         .load_type(load_type_mem),
         .MemRead(MemRead_mem),
         .ReadData(mem_read_data)
@@ -346,7 +346,7 @@ ID_EX_reg id_ex_reg_inst (
         .mem_data_in(mem_read_data),
         .alu_result_in(alu_result_mem),
         .RegWrite_in(RegWrite_mem),
-        .MemToReg(MemToReg_mem),
+        .MemToReg_in(MemToReg_mem),
         .rd_addr_in(rd_mem),
         .mem_data_out(mem_data_wb),
         .alu_result_out(alu_result_wb),

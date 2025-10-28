@@ -1,6 +1,6 @@
 `timescale 1ps/1ps
 `default_nettype none
-`include "isa.v"
+`include "rtl/isa.v"
 
 module top (
     input wire clk,
@@ -8,20 +8,23 @@ module top (
     output wire [`XLEN-1:0] pc_if_debug, pc_id_debug,
     output wire [`XLEN-1:0] instruction_if_debug, instruction_id_debug,
     output wire [31:0] cycle_count, instruction_count, stall_count,
-    output wire [31:0] branch_count, branch_mispredicts
+    output wire [31:0] branch_count, branch_mispredicts,
+    output wire branch_mispredict_signal,
+    output wire icache_stall_signal
 );
-    wire branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite;
+
+    wire branch, MemRead, MemToReg, MemWrite, ALUSrc, RegWrite;
     wire [3:0] ALU_op;
     wire is_branch, is_jump, is_jal, is_jalr, is_load, is_store;
-
+    
     wire [`XLEN-1:0] instruction_id;
-    assign instruciton_id = instruction_id_debug;
+    assign instruction_id = instruction_id_debug;
 
     control_unit control_unit_inst (
-        .instruction(instruciton_id),
+        .instruction(instruction_id),
         .branch(branch),
         .MemRead(MemRead),
-        .MemtoReg(MemtoReg),
+        .MemToReg(MemToReg),
         .ALU_op(ALU_op),
         .MemWrite(MemWrite),
         .ALUSrc(ALUSrc),
@@ -46,10 +49,14 @@ module top (
         .RegWrite_id(RegWrite),
         .is_jal_id(is_jal),
         .is_jalr_id(is_jalr),
+        .is_branch_id(is_branch),
+        .is_jump_id(is_jump),
         .pc_if_debug(pc_if_debug),
         .instruction_if_debug(instruction_if_debug),
         .pc_id_debug(pc_id_debug),
-        .instruction_id_debug(instruction_id_debug)
+        .instruction_id_debug(instruction_id_debug),
+        .branch_mispredict(branch_mispredict_signal),
+        .icache_stall(icache_stall_signal)
     );
 
     performance_counters performance_counters_inst (
@@ -57,9 +64,9 @@ module top (
         .reset(reset),
         .instruction_valid(instruction_id_debug != `NOP_INSTRUCTION),
         .is_branch(is_branch),
-        .branch_taken(1'b0),
+        .branch_taken(branch_mispredict_signal),
         .branch_predict(1'b0),
-        .stall(1'b0),
+        .stall(icache_stall_signal),
         .cycle_count(cycle_count),
         .instruction_count(instruction_count),
         .stall_count(stall_count),
