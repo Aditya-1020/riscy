@@ -1,6 +1,6 @@
 `timescale 1ps/1ps
 `default_nettype none
-`include "isa.v"
+`include "rtl/isa.v"
 
 module alu_control (
     input [1:0] ALUOp,

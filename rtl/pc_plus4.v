@@ -1,6 +1,6 @@
 `timescale 1ps/1ps
 `default_nettype none
-`include "isa.v"
+`include "rtl/isa.v"
 
 module pc_plus4 (
     input wire [`XLEN-1:0] pc_in,

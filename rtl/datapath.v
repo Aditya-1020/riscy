@@ -1,6 +1,6 @@
 `timescale 1ps/1ps
 `default_nettype none
-`include "isa.v"
+`include "rtl/isa.v"
 
 module datapath (
     input wire clk,
@@ -26,8 +26,8 @@ module datapath (
     wire [`RAS_PTR_WIDTH-1:0] ras_ptr;
     reg [`XLEN-1:0] pc_hit_btb;
 
-    wire icache_hit, icache_miss, icache_ready, icache_mem_req, mem_ack_to_cache;
-    wire [`XLEN-1:0] icache_mem_addr, mem_data_to_cache;
+    wire icache_hit, icache_miss, icache_ready, icache_mem_req;
+    wire [`XLEN-1:0] icache_mem_addr, imem_instruction;
 
     // id
     wire [`XLEN-1:0] pc_id, instruction_id, rs1_data_id, rs2_data_id, immediate_id, predicted_target_id;
@@ -88,8 +88,6 @@ module datapath (
     assign predicted_pc_if = use_ras_prediction ? ras_top_addr : (btb_hit && prediction_if) ? btb_target_if : pc_plus4_if;
     assign pc_next_if = control_hazard ? actual_next_pc_ex : predicted_pc_if;
 
-    // reg [`XLEN-1:0] pc_hit_btb;
-
     pc pc_inst (
         .clk(clk),
         .reset(reset),
@@ -144,13 +142,20 @@ module datapath (
         .stack_ptr_out(ras_ptr)
     );
 
+    instruction_mem imem_inst (
+        .clk(clk),
+        .reset(reset),
+        .address(icache_mem_addr[11:2]),
+        .instruction(imem_instruction)
+    );
+
     icache icache_inst (
         .clk(clk),
         .reset(reset),
         .pc(pc_if),
         .fetch_en(!stall),
-        .mem_ready(mem_ack_to_cache),
-        .mem_data(mem_data_to_cache),
+        .mem_ready(1'b1),  // Memory always ready (1 cycle latency)
+        .mem_data(imem_instruction),
         .hit(icache_hit),
         .miss(icache_miss),
         .ready(icache_ready),
@@ -158,9 +163,6 @@ module datapath (
         .mem_addr(icache_mem_addr),
         .instruction(instruction_if)
     );
-
-    assign mem_ack_to_cache = icache_mem_req;
-    assign mem_data_to_cache = `NOP_INSTRUCTION;
 
     IF_ID_reg if_id_reg_inst (
         .clk(clk),
@@ -205,7 +207,7 @@ module datapath (
         .flush_ex(flush_ex)
     );
 
-ID_EX_reg id_ex_reg_inst (
+    ID_EX_reg id_ex_reg_inst (
         .clk(clk),
         .reset(reset),
         .flush(flush_id),

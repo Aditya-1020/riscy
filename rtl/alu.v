@@ -1,6 +1,6 @@
 `timescale 1ps/1ps
 `default_nettype none
-`include "isa.v"
+`include "rtl/isa.v"
 
 module alu (
     input [`XLEN-1:0] a,

@@ -1,6 +1,6 @@
 `timescale 1ps/1ps
 `default_nettype none
-`include "isa.v"
+`include "rtl/isa.v"
 
 module instruction_mem (
     input wire clk,
@@ -11,18 +11,26 @@ module instruction_mem (
 
     reg [`XLEN-1:0] instruction_memory [0:`MEM_SIZE-1];
 
-    `ifdef SIMULATION
+    integer i;
     initial begin
-        $readmemh("test.hex", instruction_memory);
-    end
-    `endif
-
-    always @(posedge clk or posedge reset) begin
-        if (reset) begin
-            instruction <= {`XLEN{1'b0}};
-        end else begin
-            instruction <= instruction_memory[address];
+        for (i = 0; i < `MEM_SIZE; i = i + 1) begin
+            instruction_memory[i] = `NOP_INSTRUCTION;
         end
+
+        $readmemh("rtl/test.hex", instruction_memory);
+        
+        $display("imem intilaized:");
+        $display("[0] = %h", instruction_memory[0]);
+        $display("[1] = %h", instruction_memory[1]);
+        $display("[2] = %h", instruction_memory[2]);
+        $display("[3] = %h", instruction_memory[3]);
+    end
+
+    always @(*) begin
+        if (address < `MEM_SIZE)
+            instruction = instruction_memory[address];
+        else
+            instruction = `NOP_INSTRUCTION;
     end
 
 endmodule
