@@ -1,0 +1,45 @@
+1. Executing Verilog-2005 frontend: rtl/alu.v
+2. Executing Verilog-2005 frontend: rtl/alu_control.v
+3. Executing Verilog-2005 frontend: rtl/branch_control.v
+4. Executing Verilog-2005 frontend: rtl/branch_predictor.v
+Warning: reg '\predict_strength' is assigned in a continuous assignment at rtl/branch_predictor.v:42.12-42.84.
+Warning: reg '\prediction' is assigned in a continuous assignment at rtl/branch_predictor.v:43.12-43.68.
+Warning: Replacing memory \predict_table with list of registers. See rtl/branch_predictor.v:29
+5. Executing Verilog-2005 frontend: rtl/btb.v
+Warning: Replacing memory \target with list of registers. See rtl/btb.v:38
+Warning: Replacing memory \tag with list of registers. See rtl/btb.v:37
+Warning: Replacing memory \valid with list of registers. See rtl/btb.v:36
+6. Executing Verilog-2005 frontend: rtl/cache_controler.v
+7. Executing Verilog-2005 frontend: rtl/control_unit.v
+8. Executing Verilog-2005 frontend: rtl/data_memory.v
+Warning: Replacing memory \data_mem with list of registers. See rtl/data_memory.v:55
+9. Executing Verilog-2005 frontend: rtl/datapath.v
+10. Executing Verilog-2005 frontend: rtl/decode_funct7.v
+11. Executing Verilog-2005 frontend: rtl/forwarding_unit.v
+12. Executing Verilog-2005 frontend: rtl/hazard_unit.v
+13. Executing Verilog-2005 frontend: rtl/imm_gen.v
+14. Executing Verilog-2005 frontend: rtl/instruction_mem.v
+15. Executing Verilog-2005 frontend: rtl/isa.v
+16. Executing Verilog-2005 frontend: rtl/pc.v
+17. Executing Verilog-2005 frontend: rtl/pc_plus4.v
+18. Executing Verilog-2005 frontend: rtl/pipeline.v
+19. Executing Verilog-2005 frontend: rtl/ras.v
+Warning: Replacing memory \stack with list of registers. See rtl/ras.v:39
+20. Executing Verilog-2005 frontend: rtl/regfile.v
+Warning: Replacing memory \registers with list of registers. See rtl/regfile.v:26
+21. Executing Verilog-2005 frontend: rtl/test.v
+22. Executing Verilog-2005 frontend: rtl/top.v
+23. Executing HIERARCHY pass (managing design hierarchy).
+23.1. Analyzing design hierarchy..
+23.2. Analyzing design hierarchy..
+24. Executing PROC pass (convert processes to netlists).
+24.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+24.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+24.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+24.4. Executing PROC_INIT pass (extract init attributes).
+24.5. Executing PROC_ARST pass (detect async resets in processes).
+24.6. Executing PROC_ROM pass (convert switches to ROMs).
+24.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+24.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+24.9. Executing PROC_DFF pass (convert process syncs to FFs).
+ERROR: Multiple edge sensitive events found for this signal!
