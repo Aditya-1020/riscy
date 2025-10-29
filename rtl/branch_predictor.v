@@ -26,7 +26,7 @@ module branch_predictor (
     always @(posedge clk or posedge reset) begin
         if (reset) begin
             for (i = 0; i < `BTB_SIZE; i = i + 1) begin
-                predict_table[i] <= 2'b10;
+                predict_table[i] <= 2'b01;
             end
         end else if (update_enable && is_branch) begin
             case (predict_table[update_index])

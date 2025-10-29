@@ -19,11 +19,13 @@ module instruction_mem (
 
         $readmemh("rtl/test.hex", instruction_memory);
         
-        $display("imem intilaized:");
-        $display("[0] = %h", instruction_memory[0]);
-        $display("[1] = %h", instruction_memory[1]);
-        $display("[2] = %h", instruction_memory[2]);
-        $display("[3] = %h", instruction_memory[3]);
+        `ifndef SYNTHESIS
+            $display("imem initialized:");
+            $display("[0] = %h", instruction_memory[0]);
+            $display("[1] = %h", instruction_memory[1]);
+            $display("[2] = %h", instruction_memory[2]);
+            $display("[3] = %h", instruction_memory[3]);
+        `endif
     end
 
     always @(*) begin
@@ -32,5 +34,9 @@ module instruction_mem (
         else
             instruction = `NOP_INSTRUCTION;
     end
+
+    //always @(posedge clk) begin
+//        instruction <= (address < `MEM_SIZE) ? instruction_memory[address] : `NOP_INSTRUCTION;
+  //  end
 
 endmodule

@@ -6,8 +6,8 @@
 `define MEM_SIZE 1024
 `define IMEM_SIZE 1024
 `define DMEM_SIZE 1024
-`define WORD_ADDRESS 10  // $clog2(MEM_SIZE)
-`define WORD_BYTES 4     // XLEN / 8
+`define WORD_ADDRESS 10
+`define WORD_BYTES 4
 `define RESET_PC 32'h00000000
 `define NOP_INSTRUCTION 32'h00000013
 
@@ -176,8 +176,8 @@
 `define J_OPCODE_LSB 0
 
 // BRANCH PREDICTION
-`define BTB_SIZE 16
-`define BTB_INDEX_WIDTH 4
+`define BTB_SIZE 64
+`define BTB_INDEX_WIDTH 6
 `define RAS_SIZE 8
 `define RAS_PTR_WIDTH 3
 `define BTB_CACHE_WIDTH (32 - `BTB_INDEX_WIDTH - 2)
