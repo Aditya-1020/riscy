@@ -24,10 +24,6 @@ module datapath (
     wire [`XLEN-1:0] btb_target_if, predicted_pc_if, ras_top_addr;
     wire [1:0] predict_strength_if;
     wire [`RAS_PTR_WIDTH-1:0] ras_ptr;
-    reg [`XLEN-1:0] pc_hit_btb;
-
-    wire icache_hit, icache_miss, icache_ready, icache_mem_req;
-    wire [`XLEN-1:0] icache_mem_addr, imem_instruction;
 
     // id
     wire [`XLEN-1:0] pc_id, instruction_id, rs1_data_id, rs2_data_id, immediate_id, predicted_target_id;
@@ -37,7 +33,7 @@ module datapath (
     wire instr_30_id, prediction_id;
 
     //ex
-    wire [`XLEN-1:0] pc_ex, rs1_data_ex, rs2_data_ex, immediate_ex, predicted_target_ex;
+    wire [`XLEN-1:0] pc_ex, rs1_data_ex, rs2_data_ex, immediate_ex, predicted_target_ex, pc_plus4_ex;
     wire [4:0] rs1_addr_ex, rs2_addr_ex, rd_ex;
     wire [2:0] funct3_ex;
     wire [6:0] opcode_ex;
@@ -46,6 +42,7 @@ module datapath (
     wire [3:0] ALU_op_ex;
 
     wire [`XLEN-1:0] alu_in_a, alu_in_b, alu_result_ex, forwarded_rs1_ex, forwarded_rs2_ex, branch_target_ex, actual_next_pc_ex;
+    wire [`XLEN-1:0] ex_result;  // Result to write back (either ALU result or PC+4)
     wire alu_zero_ex, branch_taken_ex;
     wire [1:0] forward_a, forward_b;
 
@@ -81,8 +78,9 @@ module datapath (
     assign flush_id = control_hazard;
     assign flush_ex = 1'b0;
 
-    assign icache_stall = !icache_ready && !reset;
-    assign stall = load_use_stall || icache_stall;
+    // NO CACHE - direct instruction memory access
+    assign icache_stall = 1'b0;  // Never stall
+    assign stall = load_use_stall;
 
     wire use_ras_prediction = (opcode_id == `OP_J_JALR) && (rs1_id == 5'd1 || rs1_id == 5'd5) && ras_valid;
     assign predicted_pc_if = use_ras_prediction ? ras_top_addr : (btb_hit && prediction_if) ? btb_target_if : pc_plus4_if;
@@ -111,7 +109,7 @@ module datapath (
         .is_branch_or_jump(branch_ex || is_jal_ex || is_jalr_ex),
         .hit_valid(btb_hit),
         .target_predict(btb_target_if),
-        .pc_hit(pc_hit_btb)
+        .pc_hit()
     );
 
     branch_predictor bp_inst (
@@ -127,7 +125,7 @@ module datapath (
         .predict_strength(predict_strength_if)
     );
 
-     ras ras_inst (
+    ras ras_inst (
         .clk(clk),
         .reset(reset),
         .flush(control_hazard),
@@ -145,22 +143,7 @@ module datapath (
     instruction_mem imem_inst (
         .clk(clk),
         .reset(reset),
-        .address(icache_mem_addr[11:2]),
-        .instruction(imem_instruction)
-    );
-
-    icache icache_inst (
-        .clk(clk),
-        .reset(reset),
-        .pc(pc_if),
-        .fetch_en(!stall),
-        .mem_ready(1'b1),  // Memory always ready (1 cycle latency)
-        .mem_data(imem_instruction),
-        .hit(icache_hit),
-        .miss(icache_miss),
-        .ready(icache_ready),
-        .mem_read(icache_mem_req),
-        .mem_addr(icache_mem_addr),
+        .address(pc_if[11:2]),
         .instruction(instruction_if)
     );
 
@@ -206,6 +189,8 @@ module datapath (
         .stall(load_use_stall),
         .flush_ex(flush_ex)
     );
+
+    wire [`XLEN-1:0] pc_plus4_id = pc_id + 4;
 
     ID_EX_reg id_ex_reg_inst (
         .clk(clk),
@@ -258,6 +243,8 @@ module datapath (
         .predicted_target_out(predicted_target_ex)
     );
     
+    assign pc_plus4_ex = pc_ex + 4;
+    
     forwarding_unit forwarding_unit_inst (
         .rs1_ex(rs1_addr_ex),
         .rs2_ex(rs2_addr_ex),
@@ -275,7 +262,6 @@ module datapath (
     assign alu_in_a = forwarded_rs1_ex;
     assign alu_in_b = ALUSrc_ex ? immediate_ex : forwarded_rs2_ex;
 
-
     alu alu_inst (
         .a(alu_in_a),
         .b(alu_in_b),
@@ -283,6 +269,8 @@ module datapath (
         .zero(alu_zero_ex),
         .result(alu_result_ex)
     );
+
+    assign ex_result = (is_jal_ex || is_jalr_ex) ? pc_plus4_ex : alu_result_ex;
 
     branch_control branch_control_inst (
         .funct3(funct3_ex),
@@ -301,7 +289,7 @@ module datapath (
         .reset(reset),
         .stall(1'b0),
         .flush(flush_ex),
-        .alu_result_in(alu_result_ex),
+        .alu_result_in(ex_result),  // Use ex_result (PC+4 for JAL/JALR)
         .rs2_data_in(forwarded_rs2_ex),
         .RegWrite_in(RegWrite_ex),
         .MemToReg_in(MemToReg_ex),

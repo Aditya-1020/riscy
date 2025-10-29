@@ -64,8 +64,7 @@ module top (
         .reset(reset),
         .instruction_valid(instruction_id_debug != `NOP_INSTRUCTION),
         .is_branch(is_branch),
-        .branch_taken(branch_mispredict_signal),
-        .branch_predict(1'b0),
+        .branch_mispredict(branch_mispredict_signal),
         .stall(icache_stall_signal),
         .cycle_count(cycle_count),
         .instruction_count(instruction_count),
@@ -80,10 +79,14 @@ module performance_counters (
     input wire clk,
     input wire reset,
     input wire instruction_valid,
-    input wire is_branch, branch_taken, branch_predict,
+    input wire is_branch,
+    input wire branch_mispredict,
     input wire stall,
-    output reg [31:0] cycle_count, instruction_count, stall_count,
-    output reg [31:0] branch_count, branch_mispredicts
+    output reg [31:0] cycle_count,
+    output reg [31:0] instruction_count,
+    output reg [31:0] stall_count,
+    output reg [31:0] branch_count,
+    output reg [31:0] branch_mispredicts
 );
 
     always @(posedge clk or posedge reset) begin
@@ -102,10 +105,10 @@ module performance_counters (
             if (stall)
                 stall_count <= stall_count + 1;
             
-            if (is_branch)
+            if (is_branch && instruction_valid) // Count branch in ID
                 branch_count <= branch_count + 1;
             
-            if (is_branch && (branch_taken != branch_predict))
+            if (branch_mispredict)
                 branch_mispredicts <= branch_mispredicts + 1;
         end
     end
