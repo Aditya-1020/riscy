@@ -1,0 +1,34 @@
+# Read all design files
+read_verilog -sv rtl/isa.v
+read_verilog -sv rtl/alu.v
+read_verilog -sv rtl/alu_control.v
+read_verilog -sv rtl/branch_control.v
+read_verilog -sv rtl/branch_predictor.v
+read_verilog -sv rtl/btb.v
+read_verilog -sv rtl/control_unit.v
+read_verilog -sv rtl/data_memory.v
+read_verilog -sv rtl/datapath.v
+read_verilog -sv rtl/decode_funct7.v
+read_verilog -sv rtl/forwarding_unit.v
+read_verilog -sv rtl/hazard_unit.v
+read_verilog -sv rtl/imm_gen.v
+read_verilog -sv rtl/instruction_mem.v
+read_verilog -sv rtl/pc.v
+read_verilog -sv rtl/pc_plus4.v
+read_verilog -sv rtl/pipeline.v
+read_verilog -sv rtl/ras.v
+read_verilog -sv rtl/regfile.v
+read_verilog -sv rtl/top.v
+
+# Synthesize
+hierarchy -check -top top
+proc; opt; fsm; opt; memory; opt
+techmap; opt
+abc -liberty /usr/share/yosys/techlibs/common/simcells.v
+
+# Statistics
+stat
+tee -o synth_stats.txt stat
+
+# Timing estimate (approximate)
+tee -o timing.txt stat -width

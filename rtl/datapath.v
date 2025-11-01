@@ -51,7 +51,7 @@ module datapath (
     wire [4:0] rd_mem;
     wire [2:0] funct3_mem;
     wire RegWrite_mem, MemToReg_mem, MemWrite_mem, MemRead_mem;
-    wire [3:0] write_enable_mem;
+    reg [3:0] write_enable_mem;
     wire [1:0] load_type_mem;
 
     // wb
@@ -259,7 +259,8 @@ module datapath (
     assign forwarded_rs1_ex = (forward_a == 2'b10) ? alu_result_mem : (forward_a == 2'b01) ? write_back_data : rs1_data_ex;
     assign forwarded_rs2_ex = (forward_b == 2'b10) ? alu_result_mem : (forward_b == 2'b01) ? write_back_data : rs2_data_ex;
 
-    assign alu_in_a = forwarded_rs1_ex;
+    // assign alu_in_a = forwarded_rs1_ex;
+    assign alu_in_a = (opcode_ex == `OP_U_AUIPC) ? pc_ex : forwarded_rs1_ex;
     assign alu_in_b = ALUSrc_ex ? immediate_ex : forwarded_rs2_ex;
 
     alu alu_inst (
@@ -313,7 +314,58 @@ module datapath (
         .branch_taken_out()
     );
 
-    assign write_enable_mem = MemWrite_mem ? (funct3_mem == `FUNCT3_SB ? 4'b0001 : funct3_mem == `FUNCT3_SH ? 4'b0011 : funct3_mem == `FUNCT3_SW ? 4'b1111 : 4'b0000) : 4'b0000;
+    wire [1:0] store_addr_offset = alu_result_mem[1:0];
+
+    always @(*) begin
+        write_enable_mem = 4'b0000;
+        if (MemWrite_mem) begin
+            case (funct3_mem)
+                `FUNCT3_SB: begin
+                    case (store_addr_offset)
+                        2'b00: write_enable_mem = 4'b0001;
+                        2'b01: write_enable_mem = 4'b0010;
+                        2'b10: write_enable_mem = 4'b0100;
+                        2'b11: write_enable_mem = 4'b1000;
+                    endcase
+                end
+                `FUNCT3_SH: begin
+                    case (store_addr_offset[1])
+                        1'b0: write_enable_mem = 4'b0011;
+                        1'b1: write_enable_mem = 4'b1100;
+                    endcase
+                end
+                `FUNCT3_SW: begin
+                    write_enable_mem = 4'b1111;
+                end
+                default: write_enable_mem = 4'b0000;
+            endcase
+        end
+    end
+
+
+    reg [31:0] aligned_write_data;
+    always @(*) begin
+        case (funct3_mem)
+            `FUNCT3_SB: begin
+                case (store_addr_offset)
+                    2'b00: aligned_write_data = {24'b0, rs2_data_mem[7:0]};
+                    2'b01: aligned_write_data = {16'b0, rs2_data_mem[7:0], 8'b0};
+                    2'b10: aligned_write_data = {8'b0, rs2_data_mem[7:0], 16'b0};
+                    2'b11: aligned_write_data = {rs2_data_mem[7:0], 24'b0};
+                    default: aligned_write_data = rs2_data_mem;
+                endcase
+            end
+            `FUNCT3_SH: begin
+                case (store_addr_offset[1])
+                    1'b0: aligned_write_data = {16'b0, rs2_data_mem[15:0]};
+                    1'b1: aligned_write_data = {rs2_data_mem[15:0], 16'b0};
+                    default: aligned_write_data = rs2_data_mem;
+                endcase
+            end
+            `FUNCT3_SW: aligned_write_data = rs2_data_mem;
+            default: aligned_write_data = rs2_data_mem;
+        endcase
+    end
     
     assign load_type_mem = (funct3_mem == `FUNCT3_LB || funct3_mem == `FUNCT3_LBU) ? 2'b00 : (funct3_mem == `FUNCT3_LH || funct3_mem == `FUNCT3_LHU) ? 2'b01 : 2'b10;
 
@@ -321,7 +373,7 @@ module datapath (
         .clk(clk),
         .reset(reset),
         .address(alu_result_mem),
-        .WriteData(rs2_data_mem),
+        .WriteData(aligned_write_data),
         .wr_en(write_enable_mem),
         .load_type(load_type_mem),
         .MemRead(MemRead_mem),

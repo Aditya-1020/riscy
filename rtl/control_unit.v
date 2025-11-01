@@ -13,16 +13,10 @@ module control_unit (
     wire [6:0] opcode;
     wire [2:0] funct3;
     wire [6:0] funct7;
-    wire [3:0] decoded_funct7;
 
     assign opcode = instruction[6:0];
     assign funct3 = instruction[14:12];
     assign funct7 = instruction[31:25];
-
-    decode_funct7 decode_inst (
-        .funct7(funct7),
-        .alu_op(decoded_funct7)
-    );
 
     always @(*) begin
         branch = 1'b0;
@@ -45,28 +39,28 @@ module control_unit (
                 ALUSrc   = 1'b0;
                 MemToReg = 1'b0;
 
-                if (funct7 == `FUNCT7_MULDIV) begin
-                    case (funct3)
-                        `FUNCT3_MUL: ALU_op = `ALU_MUL;
-                        `FUNCT3_MULH: ALU_op = `ALU_MULH;
-                        `FUNCT3_MULHSU: ALU_op = `ALU_MULHSU;
-                        `FUNCT3_MULHU: ALU_op = `ALU_MULHU;
-                        default: ALU_op = `ALU_ADD;
-                    endcase
-                end else begin
-                    case (funct3)
-                    `FUNCT3_ADD_SUB: ALU_op = decoded_funct7;
-                    `FUNCT3_XOR: ALU_op = `ALU_XOR;
-                    `FUNCT3_OR: ALU_op = `ALU_OR;
-                    `FUNCT3_AND: ALU_op = `ALU_AND;
-                    `FUNCT3_SLL: ALU_op = `ALU_SLL;
-                    `FUNCT3_SRL_SRA: ALU_op = decoded_funct7;
-                    `FUNCT3_SLT: ALU_op = `ALU_SLT;
-                    `FUNCT3_SLTU: ALU_op = `ALU_SLTU;
-                    default: ALU_op = `ALU_ADD;
-                endcase
-                end
-            end
+            case (funct3)
+                `FUNCT3_ADD_SUB: begin
+                    if (funct7 == `FUNCT7_SUB_SRA)
+                        ALU_op = `ALU_SUB;
+                    else
+                        ALU_op = `ALU_ADD;
+                    end
+                `FUNCT3_XOR:     ALU_op = `ALU_XOR;
+                `FUNCT3_OR:      ALU_op = `ALU_OR;
+                `FUNCT3_AND:     ALU_op = `ALU_AND;
+                `FUNCT3_SLL:     ALU_op = `ALU_SLL;
+                `FUNCT3_SRL_SRA: begin
+                    if (funct7 == `FUNCT7_SUB_SRA)
+                        ALU_op = `ALU_SRA;
+                    else
+                        ALU_op = `ALU_SRL;
+                    end
+                `FUNCT3_SLT:     ALU_op = `ALU_SLT;
+                `FUNCT3_SLTU:    ALU_op = `ALU_SLTU;
+                default:         ALU_op = `ALU_ADD;
+            endcase
+        end
 
             `OP_IMM: begin
                 RegWrite = 1'b1;
@@ -75,14 +69,19 @@ module control_unit (
 
                 case (funct3)
                     `FUNCT3_ADD_SUB: ALU_op = `ALU_ADD;
-                    `FUNCT3_XOR: ALU_op = `ALU_XOR;
-                    `FUNCT3_OR: ALU_op = `ALU_OR;
-                    `FUNCT3_AND: ALU_op = `ALU_AND;
-                    `FUNCT3_SLL: ALU_op = `ALU_SLL;
-                    `FUNCT3_SRL_SRA: ALU_op = decoded_funct7;
-                    `FUNCT3_SLT: ALU_op = `ALU_SLT;
-                    `FUNCT3_SLTU: ALU_op = `ALU_SLTU;
-                    default: ALU_op = `ALU_ADD;
+                    `FUNCT3_XOR:     ALU_op = `ALU_XOR;
+                    `FUNCT3_OR:      ALU_op = `ALU_OR;
+                    `FUNCT3_AND:     ALU_op = `ALU_AND;
+                    `FUNCT3_SLL:     ALU_op = `ALU_SLL;
+                    `FUNCT3_SRL_SRA: begin
+                        if (funct7 == `FUNCT7_SUB_SRA)
+                            ALU_op = `ALU_SRA;
+                        else
+                            ALU_op = `ALU_SRL;
+                    end
+                    `FUNCT3_SLT:     ALU_op = `ALU_SLT;
+                    `FUNCT3_SLTU:    ALU_op = `ALU_SLTU;
+                    default:         ALU_op = `ALU_ADD;
                 endcase
             end
 
@@ -113,7 +112,7 @@ module control_unit (
 
             `OP_U_LUI: begin
                 RegWrite = 1'b1;
-                ALU_op = `ALU_PASS_A;
+                ALU_op = `ALU_PASS_B;
                 ALUSrc = 1'b1;
             end
 
@@ -131,7 +130,6 @@ module control_unit (
                 is_jal = 1'b1;
             end
             
-            
             `OP_J_JALR: begin
                 RegWrite = 1'b1;
                 ALU_op = `ALU_ADD;
@@ -141,7 +139,7 @@ module control_unit (
             end
 
             default: begin
-                // no change
+                // NOP/invalid
             end
         endcase
     end

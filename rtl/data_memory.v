@@ -40,7 +40,6 @@ module data_memory (
                         1'b1: ReadData = {{16{word_data[31]}}, word_data[31:16]};
                     endcase
                 end
-
                 2'b10: begin // LW
                     ReadData = word_data;
                 end

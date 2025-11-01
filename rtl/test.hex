@@ -1,150 +1,80 @@
-// Initialize registers
-00000093  // addi x1, x0, 0      # x1 = 0
-00500113  // addi x2, x0, 5      # x2 = 5
-00a00193  // addi x3, x0, 10     # x3 = 10
-
-// Basic ALU operations
-002081b3  // add  x3, x1, x2     # x3 = x1 + x2 = 5
-40208233  // sub  x4, x1, x2     # x4 = x1 - x2 = -5
-002122b3  // slt  x5, x2, x2     # x5 = (5 < 5) = 0
-00213333  // sltu x6, x2, x2     # x6 = (5 < 5) unsigned = 0
-0020c3b3  // xor  x7, x1, x2     # x7 = x1 ^ x2
-0020e433  // or   x8, x1, x2     # x8 = x1 | x2
-0020f4b3  // and  x9, x1, x2     # x9 = x1 & x2
-
-
-// Test 1: Simple counted loop (predictable)
-
-00000513  // addi x10, x0, 0     # x10 = 0 (counter)
-01400593  // addi x11, x0, 20    # x11 = 20 (limit)
-
-// Loop1: (PC = 0x28)
-00150513  // addi x10, x10, 1    # x10++ (executed 20 times)
-feb51ae3  // bne  x10, x11, -12  # loop back if x10 != x11 (taken 19 times, not-taken 1 time)
-
-
-// Test 2: Nested loops (more complex pattern)
-
-00000613  // addi x12, x0, 0     # x12 = 0 (outer counter)
-00500693  // addi x13, x0, 5     # x13 = 5 (outer limit)
-
-// OuterLoop: (PC = 0x38)
-00000713  // addi x14, x0, 0     # x14 = 0 (inner counter)
-00300793  // addi x15, x0, 3     # x15 = 3 (inner limit)
-
-// InnerLoop: (PC = 0x40)
-00170713  // addi x14, x14, 1    # x14++ (executed 3 times per outer iteration)
-fef71ae3  // bne  x14, x15, -12  # loop back if x14 != x15 (taken 2 times, not-taken 1 time)
-
-00160613  // addi x12, x12, 1    # x12++ (outer loop increment)
-fcd61ae3  // bne  x12, x13, -20  # loop back if x12 != x13 (taken 4 times, not-taken 1 time)
-
-
-// Test 3: Conditional branches (unpredictable)
-
-00000813  // addi x16, x0, 0     # x16 = 0
-00500893  // addi x17, x0, 5     # x17 = 5
-
-01180463  // beq  x16, x17, 8    # if x16==x17, skip 2 instr (not taken)
-00180813  // addi x16, x16, 1    # x16 = 1 (executed)
-00180813  // addi x16, x16, 1    # x16 = 2 (executed)
-
-01181463  // bne  x16, x17, 8    # if x16!=x17, skip 2 instr (taken)
-00180813  // addi x16, x16, 1    # x16 = 3 (skipped)
-00180813  // addi x16, x16, 1    # x16 = 4 (skipped)
-
-
-// Test 4: Loop with break condition
-
-00000913  // addi x18, x0, 0     # x18 = 0 (counter)
-01400993  // addi x19, x0, 20    # x19 = 20 (limit)
-00a00a13  // addi x20, x0, 10    # x20 = 10 (break condition)
-
-// Loop2: (PC = 0x78)
-00190913  // addi x18, x18, 1    # x18++
-01490463  // beq  x18, x20, 8    # break if x18 == 10 (taken once)
-00000013  // nop
-ff391ae3  // bne  x18, x19, -12  # continue loop (taken 9 times, not-taken 1 time)
-
-
-// Test 5: Memory operations with loop
-
-10000a93  // addi x21, x0, 0x100 # x21 = 0x100 (base address)
-00000b13  // addi x22, x0, 0     # x22 = 0 (counter)
-00a00b93  // addi x23, x0, 10    # x23 = 10 (limit)
-
-// MemLoop: (PC = 0x98)
-016a8023  // sb   x22, 0(x21)    # mem[0x100] = x22
-001a8a93  // addi x21, x21, 1    # x21++ (increment address)
-001b0b13  // addi x22, x22, 1    # x22++ (increment value)
-ff7b1ae3  // bne  x22, x23, -12  # loop back (taken 9 times, not-taken 1 time)
-
-
-// Test 6: Function call pattern (JAL/JALR)
-
-00000c13  // addi x24, x0, 0     # x24 = 0 (accumulator)
-
-020000ef  // jal  x1, 32         # call function (jump forward)
-00000013  // nop                 # (skipped)
-00000013  // nop                 # (skipped)
-00000013  // nop                 # (skipped)
-00000013  // nop                 # (skipped)
-00000013  // nop                 # (skipped)
-00000013  // nop                 # (skipped)
-00000013  // nop                 # (skipped)
-00000013  // nop                 # (skipped)
-
-// Function: (PC = 0xD0)
-005c0c13  // addi x24, x24, 5    # x24 = 5
-00ac0c13  // addi x24, x24, 10   # x24 = 15
-00008067  // jalr x0, x1, 0      # return
-
-
-// Test 7: Triangle loop (decreasing iterations)
-
-00a00c93  // addi x25, x0, 10    # x25 = 10 (outer)
-
-// TriangleLoop: (PC = 0xE0)
-00000d13  // addi x26, x0, 0     # x26 = 0 (inner counter)
-
-// InnerTriangle: (PC = 0xE4)
-001d0d13  // addi x26, x26, 1    # x26++
-ff9d1ae3  // bne  x26, x25, -12  # loop while x26 != x25
-
-fffc8c93  // addi x25, x25, -1   # x25--
-fe0c96e3  // bnez x25, -20       # loop while x25 != 0
-
-
-// Test 8: Binary search pattern
-
-00000d93  // addi x27, x0, 0     # x27 = 0 (left)
-01f00e13  // addi x28, x0, 31    # x28 = 31 (right)
-01000e93  // addi x29, x0, 16    # x29 = 16 (target)
-
-// BinarySearch: (PC = 0x104)
-01de8f33  // add  x30, x29, x29  # temp calculation
-01cf4463  // blt  x30, x28, 8    # if temp < right
-00000013  // nop
-fe0e16e3  // bnez x28, -20       # continue search
-
-
-// Test 9: Alternating pattern (hard to predict)
-
-00000f13  // addi x30, x0, 0     # x30 = 0 (counter)
-00800f93  // addi x31, x0, 8     # x31 = 8 (limit)
-
-// AltLoop: (PC = 0x120)
-001f0f13  // addi x30, x30, 1    # x30++
-007f7463  // bgeu x30, x31, 8    # if x30 >= x31 (alternates)
-00000013  // nop
-ff1ff06f  // jal  x0, -16        # loop back
-
-
-// Test 10: Final countdown and exit
-
-00a00013  // addi x0, x0, 10     # nop
-00900013  // addi x0, x0, 9      # nop
-00800013  // addi x0, x0, 8      # nop
-
-// infinite loop
-0000006f  // jal  x0, 0          # infinite loop (end of test)
+00000093  
+00500113  
+00a00193  
+002081b3  
+40208233  
+002122b3  
+00213333  
+0020c3b3  
+0020e433  
+0020f4b3  
+00000513  
+01400593  
+00150513  
+feb51ae3  
+00000613  
+00500693  
+00000713  
+00300793  
+00170713  
+fef71ae3  
+00160613  
+fcd61ae3  
+00000813  
+00500893  
+01180463  
+00180813  
+00180813  
+01181463  
+00180813  
+00180813  
+00000913  
+01400993  
+00a00a13  
+00190913  
+01490463  
+00000013  
+ff391ae3  
+10000a93  
+00000b13  
+00a00b93  
+016a8023  
+001a8a93  
+001b0b13  
+ff7b1ae3  
+00000c13  
+020000ef  
+00000013  
+00000013  
+00000013  
+00000013  
+00000013  
+00000013  
+00000013  
+00000013  
+005c0c13  
+00ac0c13  
+00008067  
+00a00c93  
+00000d13  
+001d0d13  
+ff9d1ae3  
+fffc8c93  
+fe0c96e3  
+00000d93  
+01f00e13  
+01000e93  
+01de8f33  
+01cf4463  
+00000013  
+fe0e16e3  
+00000f13  
+00800f93  
+001f0f13  
+007f7463  
+00000013  
+ff1ff06f  
+00a00013  
+00900013  
+00800013  
+0000006f

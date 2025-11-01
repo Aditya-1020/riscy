@@ -105,7 +105,7 @@ module performance_counters (
             if (stall)
                 stall_count <= stall_count + 1;
             
-            if (is_branch && instruction_valid) // Count branch in ID
+            if (is_branch && instruction_valid && !stall) // Count branch in ID
                 branch_count <= branch_count + 1;
             
             if (branch_mispredict)

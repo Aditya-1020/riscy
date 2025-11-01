@@ -47,23 +47,23 @@
 `define ALU_PASS_B   4'b1011
 
 // RV32M
-`define ALU_MUL      4'b1100
-`define ALU_MULH     4'b1101
-`define ALU_MULHU    4'b1110
-`define ALU_MULHSU   4'b1111
+// `define ALU_MUL      4'b1100
+// `define ALU_MULH     4'b1101
+// `define ALU_MULHU    4'b1110
+// `define ALU_MULHSU   4'b1111
 
 // FUNCT3 for M type
-`define FUNCT3_MUL    3'b000
-`define FUNCT3_MULH   3'b001
-`define FUNCT3_MULHSU 3'b010
-`define FUNCT3_MULHU  3'b011
-`define FUNCT3_DIV    3'b100
-`define FUNCT3_DIVU   3'b101
-`define FUNCT3_REM    3'b110
-`define FUNCT3_REMU   3'b111
+// `define FUNCT3_MUL    3'b000
+// `define FUNCT3_MULH   3'b001
+// `define FUNCT3_MULHSU 3'b010
+// `define FUNCT3_MULHU  3'b011
+// `define FUNCT3_DIV    3'b100
+// `define FUNCT3_DIVU   3'b101
+// `define FUNCT3_REM    3'b110
+// `define FUNCT3_REMU   3'b111
 
 // FUNCT7 for M type
-`define FUNCT7_MULDIV 7'b0000001
+//`define FUNCT7_MULDIV 7'b0000001
 
 // Instruction OPCODES
 `define OP_R_TYPE    7'b0110011

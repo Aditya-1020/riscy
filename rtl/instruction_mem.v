@@ -17,8 +17,7 @@ module instruction_mem (
             instruction_memory[i] = `NOP_INSTRUCTION;
         end
 
-        $readmemh("rtl/matrix_mult.hex", instruction_memory);
-        // two files for testing: "matrix_mult.hex" and "test.hex"
+        $readmemh("rtl/test.hex", instruction_memory);
         
         `ifndef SYNTHESIS
             $display("imem initialized:");
