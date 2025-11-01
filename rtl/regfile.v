@@ -20,7 +20,7 @@ module regfile (
     assign rs2_data = (rs2_addr == 5'b0) ? 32'b0 : registers[rs2_addr];
     
     integer i;
-    always @(posedge clk or posedge reset) begin
+    always @(posedge clk) begin
         if (reset) begin
             for (i = 0; i < `NUM_REGS; i = i + 1) begin
                 registers[i] <= 32'b0;

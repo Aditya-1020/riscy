@@ -117,7 +117,6 @@ Successfully finished Verilog frontend.
 17. Executing Verilog-2005 frontend: rtl/regfile.v
 Parsing SystemVerilog input from `rtl/regfile.v' to AST representation.
 Generating RTLIL representation for module `\regfile'.
-Warning: Replacing memory \registers with list of registers. See rtl/regfile.v:26
 Successfully finished Verilog frontend.
 
 18. Executing Verilog-2005 frontend: rtl/top.v
@@ -181,12 +180,8 @@ Removed 0 unused modules.
 Cleaned up 0 empty switches.
 
 20.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
-Marked 1 switch rules as full_case in process $proc$rtl/top.v:92$3447 in module performance_counters.
-Removed 1 dead cases from process $proc$rtl/regfile.v:0$3443 in module regfile.
-Marked 1 switch rules as full_case in process $proc$rtl/regfile.v:0$3443 in module regfile.
-Removed 1 dead cases from process $proc$rtl/regfile.v:0$3440 in module regfile.
-Marked 1 switch rules as full_case in process $proc$rtl/regfile.v:0$3440 in module regfile.
-Marked 3 switch rules as full_case in process $proc$rtl/regfile.v:23$3431 in module regfile.
+Marked 1 switch rules as full_case in process $proc$rtl/top.v:92$3540 in module performance_counters.
+Marked 2 switch rules as full_case in process $proc$rtl/regfile.v:34$3463 in module regfile.
 Removed 1 dead cases from process $proc$rtl/ras.v:0$3420 in module ras.
 Marked 1 switch rules as full_case in process $proc$rtl/ras.v:0$3420 in module ras.
 Marked 4 switch rules as full_case in process $proc$rtl/ras.v:36$3402 in module ras.
@@ -228,17 +223,16 @@ Removed 2 dead cases from process $proc$rtl/branch_predictor.v:26$33 in module b
 Marked 8 switch rules as full_case in process $proc$rtl/branch_predictor.v:26$33 in module branch_predictor.
 Marked 2 switch rules as full_case in process $proc$rtl/branch_control.v:17$16 in module branch_control.
 Marked 1 switch rules as full_case in process $proc$rtl/alu.v:19$1 in module alu.
-Removed a total of 21 dead cases.
+Removed a total of 19 dead cases.
 
 20.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
 Removed 2 redundant assignments.
-Promoted 1094 assignments to connections.
+Promoted 1125 assignments to connections.
 
 20.4. Executing PROC_INIT pass (extract init attributes).
 
 20.5. Executing PROC_ARST pass (detect async resets in processes).
-Found async reset \reset in `\performance_counters.$proc$rtl/top.v:92$3447'.
-Found async reset \reset in `\regfile.$proc$rtl/regfile.v:23$3431'.
+Found async reset \reset in `\performance_counters.$proc$rtl/top.v:92$3540'.
 Found async reset \reset in `\IF_ID_reg.$proc$rtl/pipeline.v:21$3371'.
 Found async reset \reset in `\pc.$proc$rtl/pc.v:12$3369'.
 Found async reset \reset in `\data_memory.$proc$rtl/data_memory.v:51$149'.
@@ -247,57 +241,55 @@ Found async reset \reset in `\branch_predictor.$proc$rtl/branch_predictor.v:26$3
 
 20.6. Executing PROC_ROM pass (convert switches to ROMs).
 Converted 0 switches.
-<suppressed ~77 debug messages>
+<suppressed ~75 debug messages>
 
 20.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
-Creating decoders for process `\performance_counters.$proc$rtl/top.v:92$3447'.
+Creating decoders for process `\performance_counters.$proc$rtl/top.v:92$3540'.
      1/5: $0\cycle_count[31:0]
      2/5: $0\branch_mispredicts[31:0]
      3/5: $0\branch_count[31:0]
      4/5: $0\stall_count[31:0]
      5/5: $0\instruction_count[31:0]
-Creating decoders for process `\regfile.$proc$rtl/regfile.v:0$3443'.
-     1/1: $1$mem2reg_rd$\registers$rtl/regfile.v:20$3425_DATA[31:0]$3445
-Creating decoders for process `\regfile.$proc$rtl/regfile.v:0$3440'.
-     1/1: $1$mem2reg_rd$\registers$rtl/regfile.v:19$3424_DATA[31:0]$3442
-Creating decoders for process `\regfile.$proc$rtl/regfile.v:23$3431'.
-     1/37: $2$mem2reg_wr$\registers$rtl/regfile.v:30$3426_ADDR[4:0]$3438
-     2/37: $2$mem2reg_wr$\registers$rtl/regfile.v:30$3426_DATA[31:0]$3439
-     3/37: $1$mem2reg_wr$\registers$rtl/regfile.v:30$3426_DATA[31:0]$3435
-     4/37: $1$mem2reg_wr$\registers$rtl/regfile.v:30$3426_ADDR[4:0]$3434
-     5/37: $1\i[31:0]
-     6/37: $0\registers[31][31:0]
-     7/37: $0\registers[30][31:0]
-     8/37: $0\registers[29][31:0]
-     9/37: $0\registers[28][31:0]
-    10/37: $0\registers[27][31:0]
-    11/37: $0\registers[26][31:0]
-    12/37: $0\registers[25][31:0]
-    13/37: $0\registers[24][31:0]
-    14/37: $0\registers[23][31:0]
-    15/37: $0\registers[22][31:0]
-    16/37: $0\registers[21][31:0]
-    17/37: $0\registers[20][31:0]
-    18/37: $0\registers[19][31:0]
-    19/37: $0\registers[18][31:0]
-    20/37: $0\registers[17][31:0]
-    21/37: $0\registers[16][31:0]
-    22/37: $0\registers[15][31:0]
-    23/37: $0\registers[14][31:0]
-    24/37: $0\registers[13][31:0]
-    25/37: $0\registers[12][31:0]
-    26/37: $0\registers[11][31:0]
-    27/37: $0\registers[10][31:0]
-    28/37: $0\registers[9][31:0]
-    29/37: $0\registers[8][31:0]
-    30/37: $0\registers[7][31:0]
-    31/37: $0\registers[6][31:0]
-    32/37: $0\registers[5][31:0]
-    33/37: $0\registers[4][31:0]
-    34/37: $0\registers[3][31:0]
-    35/37: $0\registers[2][31:0]
-    36/37: $0\registers[1][31:0]
-    37/37: $0\registers[0][31:0]
+Creating decoders for process `\regfile.$proc$rtl/regfile.v:34$3463'.
+     1/39: $2$memwr$\registers$rtl/regfile.v:41$3456_EN[31:0]$3538
+     2/39: $2$memwr$\registers$rtl/regfile.v:41$3456_DATA[31:0]$3537
+     3/39: $2$memwr$\registers$rtl/regfile.v:41$3456_ADDR[4:0]$3536
+     4/39: $1\i[31:0]
+     5/39: $1$memwr$\registers$rtl/regfile.v:37$3455_EN[31:0]$3530
+     6/39: $1$memwr$\registers$rtl/regfile.v:37$3454_EN[31:0]$3529
+     7/39: $1$memwr$\registers$rtl/regfile.v:37$3453_EN[31:0]$3528
+     8/39: $1$memwr$\registers$rtl/regfile.v:37$3452_EN[31:0]$3527
+     9/39: $1$memwr$\registers$rtl/regfile.v:37$3451_EN[31:0]$3526
+    10/39: $1$memwr$\registers$rtl/regfile.v:37$3450_EN[31:0]$3525
+    11/39: $1$memwr$\registers$rtl/regfile.v:37$3449_EN[31:0]$3524
+    12/39: $1$memwr$\registers$rtl/regfile.v:37$3448_EN[31:0]$3523
+    13/39: $1$memwr$\registers$rtl/regfile.v:37$3447_EN[31:0]$3522
+    14/39: $1$memwr$\registers$rtl/regfile.v:37$3446_EN[31:0]$3521
+    15/39: $1$memwr$\registers$rtl/regfile.v:37$3445_EN[31:0]$3520
+    16/39: $1$memwr$\registers$rtl/regfile.v:37$3444_EN[31:0]$3519
+    17/39: $1$memwr$\registers$rtl/regfile.v:37$3443_EN[31:0]$3518
+    18/39: $1$memwr$\registers$rtl/regfile.v:37$3442_EN[31:0]$3517
+    19/39: $1$memwr$\registers$rtl/regfile.v:37$3441_EN[31:0]$3516
+    20/39: $1$memwr$\registers$rtl/regfile.v:37$3440_EN[31:0]$3515
+    21/39: $1$memwr$\registers$rtl/regfile.v:37$3439_EN[31:0]$3514
+    22/39: $1$memwr$\registers$rtl/regfile.v:37$3438_EN[31:0]$3513
+    23/39: $1$memwr$\registers$rtl/regfile.v:37$3437_EN[31:0]$3512
+    24/39: $1$memwr$\registers$rtl/regfile.v:37$3436_EN[31:0]$3511
+    25/39: $1$memwr$\registers$rtl/regfile.v:37$3435_EN[31:0]$3510
+    26/39: $1$memwr$\registers$rtl/regfile.v:37$3434_EN[31:0]$3509
+    27/39: $1$memwr$\registers$rtl/regfile.v:37$3433_EN[31:0]$3508
+    28/39: $1$memwr$\registers$rtl/regfile.v:37$3432_EN[31:0]$3507
+    29/39: $1$memwr$\registers$rtl/regfile.v:37$3431_EN[31:0]$3506
+    30/39: $1$memwr$\registers$rtl/regfile.v:37$3430_EN[31:0]$3505
+    31/39: $1$memwr$\registers$rtl/regfile.v:37$3429_EN[31:0]$3504
+    32/39: $1$memwr$\registers$rtl/regfile.v:37$3428_EN[31:0]$3503
+    33/39: $1$memwr$\registers$rtl/regfile.v:37$3427_EN[31:0]$3502
+    34/39: $1$memwr$\registers$rtl/regfile.v:37$3426_EN[31:0]$3501
+    35/39: $1$memwr$\registers$rtl/regfile.v:37$3425_EN[31:0]$3500
+    36/39: $1$memwr$\registers$rtl/regfile.v:37$3424_EN[31:0]$3499
+    37/39: $1$memwr$\registers$rtl/regfile.v:41$3456_EN[31:0]$3533
+    38/39: $1$memwr$\registers$rtl/regfile.v:41$3456_DATA[31:0]$3532
+    39/39: $1$memwr$\registers$rtl/regfile.v:41$3456_ADDR[4:0]$3531
 Creating decoders for process `\ras.$proc$rtl/ras.v:0$3420'.
      1/1: $1$mem2reg_rd$\stack$rtl/ras.v:31$3383_DATA[31:0]$3422
 Creating decoders for process `\ras.$proc$rtl/ras.v:36$3402'.
@@ -1788,8 +1780,6 @@ Creating decoders for process `\alu.$proc$rtl/alu.v:19$1'.
      1/1: $1\result[31:0]
 
 20.8. Executing PROC_DLATCH pass (convert process syncs to latches).
-No latch inferred for signal `\regfile.$mem2reg_rd$\registers$rtl/regfile.v:20$3425_DATA' from process `\regfile.$proc$rtl/regfile.v:0$3443'.
-No latch inferred for signal `\regfile.$mem2reg_rd$\registers$rtl/regfile.v:19$3424_DATA' from process `\regfile.$proc$rtl/regfile.v:0$3440'.
 No latch inferred for signal `\ras.$mem2reg_rd$\stack$rtl/ras.v:31$3383_DATA' from process `\ras.$proc$rtl/ras.v:0$3420'.
 No latch inferred for signal `\instruction_mem.\i' from process `\instruction_mem.$proc$rtl/instruction_mem.v:0$2344'.
 No latch inferred for signal `\instruction_mem.$memwr$\instruction_memory$rtl/instruction_mem.v:17$292_EN' from process `\instruction_mem.$proc$rtl/instruction_mem.v:0$2344'.
@@ -2849,84 +2839,84 @@ No latch inferred for signal `\alu.\zero' from process `\alu.$proc$rtl/alu.v:19$
 No latch inferred for signal `\alu.\result' from process `\alu.$proc$rtl/alu.v:19$1'.
 
 20.9. Executing PROC_DFF pass (convert process syncs to FFs).
-Creating register for signal `\performance_counters.\cycle_count' using process `\performance_counters.$proc$rtl/top.v:92$3447'.
-  created $adff cell `$procdff$2144305' with positive edge clock and positive level reset.
-Creating register for signal `\performance_counters.\instruction_count' using process `\performance_counters.$proc$rtl/top.v:92$3447'.
-  created $adff cell `$procdff$2144306' with positive edge clock and positive level reset.
-Creating register for signal `\performance_counters.\stall_count' using process `\performance_counters.$proc$rtl/top.v:92$3447'.
-  created $adff cell `$procdff$2144307' with positive edge clock and positive level reset.
-Creating register for signal `\performance_counters.\branch_count' using process `\performance_counters.$proc$rtl/top.v:92$3447'.
-  created $adff cell `$procdff$2144308' with positive edge clock and positive level reset.
-Creating register for signal `\performance_counters.\branch_mispredicts' using process `\performance_counters.$proc$rtl/top.v:92$3447'.
-  created $adff cell `$procdff$2144309' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\i' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144310' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[0]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144311' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[1]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144312' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[2]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144313' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[3]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144314' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[4]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144315' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[5]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144316' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[6]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144317' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[7]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144318' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[8]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144319' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[9]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144320' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[10]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144321' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[11]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144322' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[12]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144323' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[13]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144324' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[14]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144325' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[15]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144326' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[16]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144327' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[17]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144328' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[18]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144329' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[19]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144330' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[20]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144331' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[21]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144332' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[22]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144333' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[23]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144334' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[24]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144335' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[25]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144336' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[26]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144337' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[27]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144338' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[28]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144339' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[29]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144340' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[30]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144341' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.\registers[31]' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144342' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.$mem2reg_wr$\registers$rtl/regfile.v:30$3426_ADDR' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144343' with positive edge clock and positive level reset.
-Creating register for signal `\regfile.$mem2reg_wr$\registers$rtl/regfile.v:30$3426_DATA' using process `\regfile.$proc$rtl/regfile.v:23$3431'.
-  created $adff cell `$procdff$2144344' with positive edge clock and positive level reset.
-Creating register for signal `ERROR: Multiple edge sensitive events found for this signal!
+Creating register for signal `\performance_counters.\cycle_count' using process `\performance_counters.$proc$rtl/top.v:92$3540'.
+  created $adff cell `$procdff$2143796' with positive edge clock and positive level reset.
+Creating register for signal `\performance_counters.\instruction_count' using process `\performance_counters.$proc$rtl/top.v:92$3540'.
+  created $adff cell `$procdff$2143797' with positive edge clock and positive level reset.
+Creating register for signal `\performance_counters.\stall_count' using process `\performance_counters.$proc$rtl/top.v:92$3540'.
+  created $adff cell `$procdff$2143798' with positive edge clock and positive level reset.
+Creating register for signal `\performance_counters.\branch_count' using process `\performance_counters.$proc$rtl/top.v:92$3540'.
+  created $adff cell `$procdff$2143799' with positive edge clock and positive level reset.
+Creating register for signal `\performance_counters.\branch_mispredicts' using process `\performance_counters.$proc$rtl/top.v:92$3540'.
+  created $adff cell `$procdff$2143800' with positive edge clock and positive level reset.
+Creating register for signal `\regfile.\i' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143801' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3424_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143802' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3425_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143803' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3426_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143804' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3427_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143805' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3428_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143806' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3429_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143807' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3430_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143808' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3431_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143809' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3432_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143810' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3433_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143811' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3434_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143812' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3435_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143813' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3436_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143814' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3437_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143815' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3438_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143816' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3439_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143817' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3440_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143818' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3441_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143819' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3442_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143820' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3443_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143821' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3444_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143822' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3445_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143823' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3446_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143824' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3447_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143825' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3448_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143826' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3449_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143827' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3450_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143828' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3451_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143829' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3452_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143830' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3453_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143831' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3454_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143832' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:37$3455_EN' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143833' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:41$3456_ADDR' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143834' with positive edge clock.
+Creating register for signal `\regfile.$memwr$\registers$rtl/regfile.v:41$3456_DATA' using process `\regfile.$proc$rtl/regfile.v:34$3463'.
+  created $dff cell `$procdff$2143835' with positive edge clock.
+Creating register for signal `\regfile.$memwERROR: Multiple edge sensitive events found for this signal!

@@ -37,9 +37,9 @@ module tb_top;
         #50000;
         reset = 0;
 
-        #50000000; // 100MHz for 500 cycles
+        #50000000; // 100MHz in 500 cycles
 
-        $display("\nPERFORMANCE RESULTS");
+        $display("\nperfromance");
         $display("Total Cycles:        %d", cycle_count);
         $display("Instructions:        %d", instruction_count);
         $display("Stalls:              %d", stall_count);
