@@ -16,6 +16,10 @@ module alu (
     wire signed [`XLEN-1:0] signed_a = $signed(a);
     wire signed [`XLEN-1:0] signed_b = $signed(b);
 
+    wire signed [63:0] mul_result_signed = signed_a * signed_b;
+    wire [63:0] mul_result_unsigned = a * b;
+    wire signed [63:0] mul_result_su = signed_a * $signed({1'b0, b});
+
     always @(*) begin
         case (ALUControl)
             `ALU_ADD: result = a + b;
@@ -30,6 +34,10 @@ module alu (
             `ALU_AND: result = a & b;
             `ALU_PASS_A: result = a;
             `ALU_PASS_B: result = b;
+            `ALU_MUL: result = mul_result_signed[31:0];
+            `ALU_MULH: result = mul_result_signed[63:32];
+            `ALU_MULHU: result = mul_result_unsigned[63:32];
+            `ALU_MULHSU: result = mul_result_su[63:32];
             default: result = a + b;
         endcase
 

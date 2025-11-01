@@ -1,7 +1,6 @@
 `timescale 1ps/1ps
 `default_nettype none
 `include "rtl/isa.v"
-// `include "decode_funct7.v"
 
 module control_unit (
     input [`XLEN-1:0] instruction,
@@ -46,7 +45,16 @@ module control_unit (
                 ALUSrc   = 1'b0;
                 MemToReg = 1'b0;
 
-                case (funct3)
+                if (funct7 == `FUNCT7_MULDIV) begin
+                    case (funct3)
+                        `FUNCT3_MUL: ALU_op = `ALU_MUL;
+                        `FUNCT3_MULH: ALU_op = `ALU_MULH;
+                        `FUNCT3_MULHSU: ALU_op = `ALU_MULHSU;
+                        `FUNCT3_MULHU: ALU_op = `ALU_MULHU;
+                        default: ALU_op = `ALU_ADD;
+                    endcase
+                end else begin
+                    case (funct3)
                     `FUNCT3_ADD_SUB: ALU_op = decoded_funct7;
                     `FUNCT3_XOR: ALU_op = `ALU_XOR;
                     `FUNCT3_OR: ALU_op = `ALU_OR;
@@ -57,6 +65,7 @@ module control_unit (
                     `FUNCT3_SLTU: ALU_op = `ALU_SLTU;
                     default: ALU_op = `ALU_ADD;
                 endcase
+                end
             end
 
             `OP_IMM: begin
