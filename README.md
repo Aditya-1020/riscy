@@ -50,7 +50,6 @@ A 32-bit RISC-V processor implementation in Verilog supporting the RV32I base in
 
 ### Build
 - Icarus Verilog (for simulation)
-- Yosys (for synthesis)
 - GTKWave (for waveform viewing)
 
 ```bash
