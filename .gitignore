@@ -1,18 +1,17 @@
-.vscode
+.vscode/
+
 stages.md
 TODU.md
+
 full_synthesis.log
-sim
+
 xelab.*
 xsim.*
 xvlog.*
 xsim.dir/
-*.jou
-*.log
-*.pb
-*.backup.*
-*.wdb
-*.vcd
-*.vpd
-*.snap
-*.mld
+*.jou *.log *.pb *.backup.* *.wdb
+*.vcd *.vpd *.snap *.mld
+
+clean.sh
+sim/
+*.bit *.bin *.mcs
