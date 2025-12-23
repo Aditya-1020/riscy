@@ -3,9 +3,9 @@
 `include "rtl/isa.v"
 
 module alu_control (
-    input [1:0] ALUOp,
-    input instr_30,
-    input [2:0] funct3,
+    input wire [1:0] ALUOp,
+    input wire instr_30,
+    input wire [2:0] funct3,
     output reg [3:0] ALUControl
 );
 

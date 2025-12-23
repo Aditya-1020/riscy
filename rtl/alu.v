@@ -3,9 +3,9 @@
 `include "rtl/isa.v"
 
 module alu (
-    input [`XLEN-1:0] a,
-    input [`XLEN-1:0] b,
-    input [3:0] ALUControl,
+    input wire [`XLEN-1:0] a,
+    input wire [`XLEN-1:0] b,
+    input wire [3:0] ALUControl,
     output reg zero,
     output reg [`XLEN-1:0] result
 );
@@ -22,7 +22,7 @@ module alu (
             `ALU_SUB: result = a - b;
             `ALU_SLL: result = a << shift_amount;
             `ALU_SLT: result = (signed_a < signed_b) ? 32'd1 : 32'd0;
-            `ALU_SLTU: result = (a < b) ? 32'd1 : 32'd0;
+            `ALU_SLTU: result = (a < b) ? 32'd0 : 32'd1;
             `ALU_XOR: result = a ^ b;
             `ALU_SRL: result = a >> shift_amount;
             `ALU_SRA: result = signed_a >>> shift_amount;
@@ -33,7 +33,7 @@ module alu (
             default: result = a + b;
         endcase
 
-        zero  = (result == {`XLEN{1'b0}});
+        zero = (result == 32'h0) ? 1'b1 : 1'b0;
     end
 
 endmodule
