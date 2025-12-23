@@ -1,0 +1,7 @@
+0.7
+2020.2
+May 21 2025
+22:59:56
+/home/link/CODE/projects/AdiRiscV/rtl/isa.v,1761988071,systemVerilog,,/home/link/CODE/projects/AdiRiscV/rtl/regfile.v,,,,,,,,,,
+/home/link/CODE/projects/AdiRiscV/rtl/regfile.v,1761989384,systemVerilog,,,/home/link/CODE/projects/AdiRiscV/rtl/isa.v,regfile,,,,,,,,
+/home/link/CODE/projects/AdiRiscV/tb/regfile_tb.v,1766501425,systemVerilog,,/home/link/CODE/projects/AdiRiscV/rtl/isa.v,/home/link/CODE/projects/AdiRiscV/rtl/isa.v,regfile_tb,,,,,,,,
